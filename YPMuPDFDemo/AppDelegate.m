@@ -7,18 +7,67 @@
 //
 
 #import "AppDelegate.h"
+#import "ViewController.h"
+#import "common.h"
 
 @interface AppDelegate ()
 
 @end
 
+enum{
+    ResourceCacheMaxSize = 128<<20	/**< use at most 128M for resource cache */
+};
+
 @implementation AppDelegate
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+    
+    queue = dispatch_queue_create("com.artifex.mupdf.queue", NULL);
+    
+    ctx = fz_new_context(NULL, NULL, ResourceCacheMaxSize);
+    fz_register_document_handlers(ctx);
+    screenScale = [UIScreen mainScreen].scale;
+    
+//    判断程序是否是第一次启动
+    if (![[NSUserDefaults standardUserDefaults]boolForKey:@"firstLauch"]) {
+        
+        [[NSUserDefaults standardUserDefaults]setBool:YES forKey:@"firstLauch"];
+        [[NSUserDefaults standardUserDefaults]setBool:YES forKey:@"switchNight"];
+        
+        NSString *filePath = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0];
+//        NSString *fileP = [filePath stringByAppendingPathComponent:@"01CCE0B568B020371F564DA82D341F4A.pdf"];
+//        
+//        NSString *fileB = [[NSBundle mainBundle]pathForResource:@"01CCE0B568B020371F564DA82D341F4A.pdf" ofType:nil];
+//        
+        NSString *fileP = [filePath stringByAppendingPathComponent:@"font.pdf"];
+        
+        NSString *fileB = [[NSBundle mainBundle]pathForResource:@"font.pdf" ofType:nil];
+        
+        NSFileManager *FileMa = [NSFileManager defaultManager];
+        [FileMa copyItemAtPath:fileB toPath:fileP error:nil];
+        
+    }
+    
+    self.window = [[UIWindow alloc]initWithFrame:[UIScreen mainScreen].bounds];
+    ViewController *vc = [[ViewController alloc]init];
+    UINavigationController *NAV = [[UINavigationController alloc]initWithRootViewController:vc];
+    self.window.rootViewController = NAV;
+    
+    [self.window makeKeyAndVisible];
+    
     return YES;
 }
+
+//- (UIInterfaceOrientationMask)application:(UIApplication *)application supportedInterfaceOrientationsForWindow:(nullable UIWindow *)window  NS_AVAILABLE_IOS(6_0) __TVOS_PROHIBITED{
+//
+//    if (self.allowRotation) {
+//        return UIInterfaceOrientationMaskAll;
+//    }
+//    
+//    return UIInterfaceOrientationMaskPortrait;
+//    
+//}
 
 
 - (void)applicationWillResignActive:(UIApplication *)application {

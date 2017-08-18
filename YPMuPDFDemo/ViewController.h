@@ -1,9 +1,9 @@
 //
 //  ViewController.h
-//  YPMuPDFDemo
+//  MuPDFDemo
 //
-//  Created by navchina on 2017/6/27.
-//  Copyright © 2017年 LYP. All rights reserved.
+//  Created by zhangsl on 2016/12/23.
+//  Copyright © 2016年 zhangsl. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
