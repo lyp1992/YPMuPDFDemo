@@ -28,4 +28,6 @@ enum
             andDocument:(MuDocRef *)docRef
            andNightMode:(BOOL)nightMode;
 
+- (void)inkWithStatus:(BOOL)select;
+
 @end

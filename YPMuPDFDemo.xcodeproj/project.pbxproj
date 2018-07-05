@@ -50,6 +50,7 @@
 		7BD5B4BA1F32C9AB00731BA8 /* FMDatabaseQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BD5B4B11F32C9AB00731BA8 /* FMDatabaseQueue.m */; };
 		7BD5B4BB1F32C9AB00731BA8 /* FMResultSet.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BD5B4B41F32C9AB00731BA8 /* FMResultSet.m */; };
 		7BD5B4BE1F32C9E900731BA8 /* FmdbTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 7BD5B4BD1F32C9E900731BA8 /* FmdbTool.m */; };
+		D772DA1B200756E000F50CB6 /* APP-1 10号进近 P193.pdf in Resources */ = {isa = PBXBuildFile; fileRef = D772DA1A200756DF00F50CB6 /* APP-1 10号进近 P193.pdf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -222,6 +223,7 @@
 		7BD5B4B41F32C9AB00731BA8 /* FMResultSet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FMResultSet.m; sourceTree = "<group>"; };
 		7BD5B4BC1F32C9E900731BA8 /* FmdbTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FmdbTool.h; sourceTree = "<group>"; };
 		7BD5B4BD1F32C9E900731BA8 /* FmdbTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FmdbTool.m; sourceTree = "<group>"; };
+		D772DA1A200756DF00F50CB6 /* APP-1 10号进近 P193.pdf */ = {isa = PBXFileReference; lastKnownFileType = image.pdf; path = "APP-1 10号进近 P193.pdf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -316,6 +318,7 @@
 				7B1F87C71F01F59600533500 /* ThirdLib */,
 				7B1F87C51F01F57600533500 /* 01CCE0B568B020371F564DA82D341F4A.pdf */,
 				7B19764B1F3990CD00AA689D /* font.pdf */,
+				D772DA1A200756DF00F50CB6 /* APP-1 10号进近 P193.pdf */,
 				7B1F87841F01F52B00533500 /* AppDelegate.h */,
 				7B1F87851F01F52B00533500 /* AppDelegate.m */,
 				7B1F87C21F01F56900533500 /* ViewController.h */,
@@ -702,6 +705,7 @@
 				7BD5B4B51F32C9AB00731BA8 /* LICENSE.txt in Resources */,
 				7B1F87C61F01F57600533500 /* 01CCE0B568B020371F564DA82D341F4A.pdf in Resources */,
 				7B19764C1F3990CD00AA689D /* font.pdf in Resources */,
+				D772DA1B200756E000F50CB6 /* APP-1 10号进近 P193.pdf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

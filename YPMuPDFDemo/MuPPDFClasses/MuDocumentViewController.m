@@ -316,6 +316,7 @@ static void saveDoc(char *current_path, fz_document *doc)
     [self.indicator setHidden: YES];
 }
 
+
 -(instancetype)initWith:(NSString *)filePath
             andDocument:(MuDocRef *)docRef
            andNightMode:(BOOL)nightMode{
@@ -627,7 +628,7 @@ static void saveDoc(char *current_path, fz_document *doc)
     self.docRef = nil; self.docRef.doc = NULL;
     self.indicator = nil;
     self.filePath = NULL;
-
+    NSLog(@"+++");
     [[NSNotificationCenter defaultCenter]removeObserver:self];
 }
 

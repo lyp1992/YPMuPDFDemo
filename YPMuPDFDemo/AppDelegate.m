@@ -36,17 +36,18 @@ enum{
         [[NSUserDefaults standardUserDefaults]setBool:YES forKey:@"switchNight"];
         
         NSString *filePath = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0];
-//        NSString *fileP = [filePath stringByAppendingPathComponent:@"01CCE0B568B020371F564DA82D341F4A.pdf"];
-//        
-//        NSString *fileB = [[NSBundle mainBundle]pathForResource:@"01CCE0B568B020371F564DA82D341F4A.pdf" ofType:nil];
-//        
-        NSString *fileP = [filePath stringByAppendingPathComponent:@"font.pdf"];
+        NSString *fileP1 = [filePath stringByAppendingPathComponent:@"01CCE0B568B020371F564DA82D341F4A.pdf"];
         
-        NSString *fileB = [[NSBundle mainBundle]pathForResource:@"font.pdf" ofType:nil];
+        NSString *fileB1 = [[NSBundle mainBundle]pathForResource:@"01CCE0B568B020371F564DA82D341F4A.pdf" ofType:nil];
+//
+        NSString *fileP = [filePath stringByAppendingPathComponent:@"APP-1 10号进近 P193.pdf"];
+        
+        NSString *fileB = [[NSBundle mainBundle]pathForResource:@"APP-1 10号进近 P193.pdf" ofType:nil];
         
         NSFileManager *FileMa = [NSFileManager defaultManager];
         [FileMa copyItemAtPath:fileB toPath:fileP error:nil];
-        
+        [FileMa copyItemAtPath:fileB1 toPath:fileP1 error:nil];
+
     }
     
     self.window = [[UIWindow alloc]initWithFrame:[UIScreen mainScreen].bounds];
