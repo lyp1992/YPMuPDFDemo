@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 82
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/helpers
+END
+mu-threads.h
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/helpers/mu-threads.h
+END
+mu-office-lib.h
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/helpers/mu-office-lib.h
+END

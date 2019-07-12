@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf
+END
+pdf.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf.h
+END
+fitz.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz.h
+END
+svg.h
+K 25
+svn:wc:ra_dav:version-url
+V 80
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/svg.h
+END
+html.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/html.h
+END
+memento.h
+K 25
+svn:wc:ra_dav:version-url
+V 84
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/memento.h
+END
+pdf-tools.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf-tools.h
+END

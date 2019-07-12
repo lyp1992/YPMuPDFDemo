@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/EFB_PDFFrameworkRoot/!svn/ver/16/trunk/EFBMuPDF/EFBMuPdf/MuPPDFClasses/Model
+END
+PageStringModel.m
+K 25
+svn:wc:ra_dav:version-url
+V 98
+/svn/EFB_PDFFrameworkRoot/!svn/ver/7/trunk/EFBMuPDF/EFBMuPdf/MuPPDFClasses/Model/PageStringModel.m
+END
+MuPdfPageTool.m
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/EFB_PDFFrameworkRoot/!svn/ver/16/trunk/EFBMuPDF/EFBMuPdf/MuPPDFClasses/Model/MuPdfPageTool.m
+END
+PagesModel.temp_caseinsensitive_rename.m
+K 25
+svn:wc:ra_dav:version-url
+V 121
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/MuPPDFClasses/Model/PagesModel.temp_caseinsensitive_rename.m
+END
+PagesModel.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/MuPPDFClasses/Model/PagesModel.h
+END
+PreferencesModel.h
+K 25
+svn:wc:ra_dav:version-url
+V 100
+/svn/EFB_PDFFrameworkRoot/!svn/ver/10/trunk/EFBMuPDF/EFBMuPdf/MuPPDFClasses/Model/PreferencesModel.h
+END
+AnnotsModel.h
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/EFB_PDFFrameworkRoot/!svn/ver/8/trunk/EFBMuPDF/EFBMuPdf/MuPPDFClasses/Model/AnnotsModel.h
+END
+PageStringModel.h
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/EFB_PDFFrameworkRoot/!svn/ver/12/trunk/EFBMuPDF/EFBMuPdf/MuPPDFClasses/Model/PageStringModel.h
+END
+PagesModel.m
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/MuPPDFClasses/Model/PagesModel.m
+END
+MuPdfPageTool.h
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/EFB_PDFFrameworkRoot/!svn/ver/12/trunk/EFBMuPDF/EFBMuPdf/MuPPDFClasses/Model/MuPdfPageTool.h
+END
+PreferencesModel.m
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/EFB_PDFFrameworkRoot/!svn/ver/9/trunk/EFBMuPDF/EFBMuPdf/MuPPDFClasses/Model/PreferencesModel.m
+END
+AnnotsModel.m
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/EFB_PDFFrameworkRoot/!svn/ver/8/trunk/EFBMuPDF/EFBMuPdf/MuPPDFClasses/Model/AnnotsModel.m
+END

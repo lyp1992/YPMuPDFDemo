@@ -1,0 +1,317 @@
+K 25
+svn:wc:ra_dav:version-url
+V 79
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz
+END
+colorspace.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/colorspace.h
+END
+transition.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/transition.h
+END
+output-pwg.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/output-pwg.h
+END
+path.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/path.h
+END
+store.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/store.h
+END
+link.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/link.h
+END
+pixmap.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/pixmap.h
+END
+output.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/output.h
+END
+xml.h
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/xml.h
+END
+crypt.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/crypt.h
+END
+getopt.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/getopt.h
+END
+config.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/config.h
+END
+separation.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/separation.h
+END
+font.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/font.h
+END
+annotation.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/annotation.h
+END
+writer.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/writer.h
+END
+util.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/util.h
+END
+display-list.h
+K 25
+svn:wc:ra_dav:version-url
+V 94
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/display-list.h
+END
+string-util.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/string-util.h
+END
+output-png.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/output-png.h
+END
+image.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/image.h
+END
+hash.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/hash.h
+END
+glyph-cache.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/glyph-cache.h
+END
+shade.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/shade.h
+END
+system.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/system.h
+END
+text.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/text.h
+END
+function.h
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/function.h
+END
+output-pnm.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/output-pnm.h
+END
+ucdn.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/ucdn.h
+END
+geometry.h
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/geometry.h
+END
+stream.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/stream.h
+END
+output-svg.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/output-svg.h
+END
+device.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/device.h
+END
+tree.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/tree.h
+END
+track-usage.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/track-usage.h
+END
+bidi.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/bidi.h
+END
+buffer.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/buffer.h
+END
+output-tga.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/output-tga.h
+END
+pool.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/pool.h
+END
+compressed-buffer.h
+K 25
+svn:wc:ra_dav:version-url
+V 99
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/compressed-buffer.h
+END
+output-pcl.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/output-pcl.h
+END
+bitmap.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/bitmap.h
+END
+band-writer.h
+K 25
+svn:wc:ra_dav:version-url
+V 93
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/band-writer.h
+END
+document.h
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/document.h
+END
+outline.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/outline.h
+END
+output-ps.h
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/output-ps.h
+END
+archive.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/archive.h
+END
+glyph.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/glyph.h
+END
+context.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/context.h
+END
+filter.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/filter.h
+END
+version.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/version.h
+END
+structured-text.h
+K 25
+svn:wc:ra_dav:version-url
+V 97
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/fitz/structured-text.h
+END

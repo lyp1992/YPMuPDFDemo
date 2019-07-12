@@ -1,0 +1,119 @@
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf
+END
+appearance.h
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/appearance.h
+END
+crypt.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/crypt.h
+END
+xref.h
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/xref.h
+END
+name-table.h
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/name-table.h
+END
+object.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/object.h
+END
+javascript.h
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/javascript.h
+END
+font.h
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/font.h
+END
+output-pdf.h
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/output-pdf.h
+END
+parse.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/parse.h
+END
+page.h
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/page.h
+END
+interpret.h
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/interpret.h
+END
+document.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/document.h
+END
+annot.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/annot.h
+END
+cmap.h
+K 25
+svn:wc:ra_dav:version-url
+V 85
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/cmap.h
+END
+event.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/event.h
+END
+clean.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/clean.h
+END
+field.h
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/field.h
+END
+widget.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/widget.h
+END
+resource.h
+K 25
+svn:wc:ra_dav:version-url
+V 89
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/include/mupdf/pdf/resource.h
+END

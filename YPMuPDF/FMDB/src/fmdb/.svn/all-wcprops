@@ -1,0 +1,71 @@
+K 25
+svn:wc:ra_dav:version-url
+V 74
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/FMDB/src/fmdb
+END
+FMDatabaseAdditions.m
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/FMDB/src/fmdb/FMDatabaseAdditions.m
+END
+FMDatabase.m
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/FMDB/src/fmdb/FMDatabase.m
+END
+FMDatabaseQueue.h
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/FMDB/src/fmdb/FMDatabaseQueue.h
+END
+FMResultSet.h
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/FMDB/src/fmdb/FMResultSet.h
+END
+FMDatabasePool.h
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/FMDB/src/fmdb/FMDatabasePool.h
+END
+FMDatabaseQueue.m
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/FMDB/src/fmdb/FMDatabaseQueue.m
+END
+FMResultSet.m
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/FMDB/src/fmdb/FMResultSet.m
+END
+FMDatabaseAdditions.h
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/FMDB/src/fmdb/FMDatabaseAdditions.h
+END
+FMDatabasePool.m
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/FMDB/src/fmdb/FMDatabasePool.m
+END
+FMDatabase.h
+K 25
+svn:wc:ra_dav:version-url
+V 87
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/FMDB/src/fmdb/FMDatabase.h
+END
+FMDB.h
+K 25
+svn:wc:ra_dav:version-url
+V 81
+/svn/EFB_PDFFrameworkRoot/!svn/ver/3/trunk/EFBMuPDF/EFBMuPdf/FMDB/src/fmdb/FMDB.h
+END

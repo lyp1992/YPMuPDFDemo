@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bucket
+   type = "1"
+   version = "2.0">
+   <Breakpoints>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "YPMuPDFDemo/MuPPDFClasses/MuDocumentViewController.m"
+            timestampString = "550056490.289131"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "495"
+            endingLineNumber = "495"
+            landmarkName = "-onBack:"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[MuDocumentViewController onBack:]"
+                  moduleName = "YPMuPDFDemo"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yachaocn/Desktop/MU%20PDF/YPMuPDFDemo/YPMuPDFDemo/MuPPDFClasses/MuDocumentViewController.m"
+                  timestampString = "550056490.331592"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "495"
+                  endingLineNumber = "495"
+                  offsetFromSymbolStart = "332">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[MuDocumentViewController onBack:]"
+                  moduleName = "YPMuPDFDemo"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yachaocn/Desktop/MU%20PDF/YPMuPDFDemo/YPMuPDFDemo/MuPPDFClasses/MuDocumentViewController.m"
+                  timestampString = "550056490.333358"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "495"
+                  endingLineNumber = "495"
+                  offsetFromSymbolStart = "344">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[MuDocumentViewController onBack:]"
+                  moduleName = "SiniCustomePDFKit"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yachaocn/Desktop/MU%20PDF/YPMuPDFDemo/YPMuPDFDemo/MuPPDFClasses/MuDocumentViewController.m"
+                  timestampString = "550056490.495958"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "495"
+                  endingLineNumber = "495"
+                  offsetFromSymbolStart = "332">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[MuDocumentViewController onBack:]"
+                  moduleName = "SiniCustomePDFKit"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yachaocn/Desktop/MU%20PDF/YPMuPDFDemo/YPMuPDFDemo/MuPPDFClasses/MuDocumentViewController.m"
+                  timestampString = "550056490.49959"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "495"
+                  endingLineNumber = "495"
+                  offsetFromSymbolStart = "344">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.FileBreakpoint">
+         <BreakpointContent
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            filePath = "YPMuPDFDemo/MuPPDFClasses/MuNormalPageView.m"
+            timestampString = "550031105.3809429"
+            startingColumnNumber = "9223372036854775807"
+            endingColumnNumber = "9223372036854775807"
+            startingLineNumber = "598"
+            endingLineNumber = "598"
+            landmarkName = "-yp_getPDFDirectionWithDegree:"
+            landmarkType = "7">
+            <Locations>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[MuNormalPageView yp_getPDFDirectionWithDegree:]"
+                  moduleName = "YPMuPDFDemo"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yachaocn/Desktop/MU%20PDF/YPMuPDFDemo/YPMuPDFDemo/MuPPDFClasses/MuNormalPageView.m"
+                  timestampString = "550056490.338842"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "600"
+                  endingLineNumber = "600"
+                  offsetFromSymbolStart = "32">
+               </Location>
+               <Location
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "-[MuNormalPageView yp_getPDFDirectionWithDegree:]"
+                  moduleName = "SiniCustomePDFKit"
+                  usesParentBreakpointCondition = "Yes"
+                  urlString = "file:///Users/yachaocn/Desktop/MU%20PDF/YPMuPDFDemo/YPMuPDFDemo/MuPPDFClasses/MuNormalPageView.m"
+                  timestampString = "550056490.504455"
+                  startingColumnNumber = "9223372036854775807"
+                  endingColumnNumber = "9223372036854775807"
+                  startingLineNumber = "600"
+                  endingLineNumber = "600"
+                  offsetFromSymbolStart = "32">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
+   </Breakpoints>
+</Bucket>

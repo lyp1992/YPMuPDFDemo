@@ -1,0 +1,613 @@
+//
+//  SiniCustomePDFViewcontroller.m
+//  CustomePDFViewController
+//
+//  Created by yachaocn on 17/2/16.
+//  Copyright © 2017年 yachaocn. All rights reserved.
+//
+
+#import "SiniCustomePDFViewcontroller.h"
+#import <objc/runtime.h>
+#import "MuDocumentViewController.h"
+#import "SiniSearchViewController.h"
+#import "PageStringModel.h"
+#import "SiniOutlineViewController.h"
+#import "MLeaksFinder.h"
+
+@interface SiniCustomePDFViewcontroller () <SiniSearchDelegate,SiniOutlineDelegate>
+
+/**
+ PDF 搜索控制器
+ */
+@property (nonatomic,strong) SiniSearchViewController *siniSearchVC;
+
+/**
+ PDF 目录控制器
+ */
+@property (nonatomic,strong) SiniOutlineViewController *siniOutlineVC;
+
+/**
+ PDF 控制器
+ */
+@property (nonatomic,strong) MuDocumentViewController *documentVC;
+/**
+ PDF 风格设置
+ */
+@property(nonatomic,strong) SiniPDFStyleInstance *styleInstance;
+/**
+ 工具视图
+ */
+@property(nonatomic,strong) UIView *cornerView;
+
+/**
+ 工具条时间完成后调用代码块
+ */
+@property(nonatomic,strong) void (^cornerButtonActionComplete)(id target);
+
+/**
+ 通常状态下单击pdf后回调函数
+ */
+@property(nonatomic,strong) void (^tapedBlock)(CGPoint viewPoint);
+
+/**
+ 标记绘图状态，标尺
+ */
+@property(nonatomic) BOOL isDrawing;
+
+/**
+ 标尺的十字点
+ */
+@property(nonatomic) CGPoint rulerPoint;
+
+@property (nonatomic) BOOL isNightModel;
+
+/**
+ 更新pdf风格时是否刷新PDF
+ */
+@property (nonatomic) BOOL updateStyleReloadPDF;
+
+@end
+static void *PSCAnnotationStateManagerChangedStateContext = &PSCAnnotationStateManagerChangedStateContext;
+@implementation SiniCustomePDFViewcontroller
+
+//static inline UIBarButtonItem *UIBarButtonWithFixedWidth(CGFloat with)
+//{
+//    UIBarButtonItem *button = [[UIBarButtonItem alloc]initWithBarButtonSystemItem:UIBarButtonSystemItemFixedSpace target:nil action:nil];
+//    button.width = with;
+//    return button;
+//}
+#pragma mark - init method
+
+-(instancetype)initWithStyleInstance:(nullable SiniPDFStyleInstance *)styleInstance
+{
+    if (self = [super init]) {
+        self.view.backgroundColor = [UIColor whiteColor];
+        _isNightModel = NO;
+        self.cornerToolsItems = [NSMutableArray array];
+        if (styleInstance) {
+            self.styleInstance = styleInstance;
+        }else{
+            self.styleInstance = [[SiniPDFStyleInstance alloc]init];
+        }
+        _documentVC = [[MuDocumentViewController alloc]init];
+        _documentVC.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+        _documentVC.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+        [self.view addSubview:_documentVC.view];
+        [self addChildViewController:_documentVC];
+        [_documentVC didMoveToParentViewController:self];
+        _documentVC.parentViewController = self;
+        self.navigationItem.leftBarButtonItems = nil;
+//        self.navigationItem.rightBarButtonItems = @[_documentVC.switchNightButton,_documentVC.inkButton,_documentVC.cancelButton,_documentVC.deleteButton,_documentVC.annotButton];
+    }
+    return self;
+}
+
+#pragma mark - 属性
+#pragma mark - set Method
+
+-(void)setStyleInstance:(SiniPDFStyleInstance *)styleInstance
+{
+    if (!styleInstance) {
+        return;
+    }
+  
+    self.cornerView.backgroundColor = styleInstance.cornerToolbarBackgroundColor;
+
+    _styleInstance = styleInstance;
+}
+
+-(void)setCornerToolsItems:(NSArray *)cornerToolsItems
+{
+    if (cornerToolsItems.count == 0) {
+        for (UIView *view in self.cornerView.subviews) {
+            [view removeFromSuperview];
+        }
+        [self.cornerView removeFromSuperview];
+        return;
+    }
+    
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+    
+    for (id cornerItem in cornerToolsItems) {
+        NSAssert([cornerItem isKindOfClass:[UIButton class]], @"corner item:%@ must be UIButton class.",cornerItem);
+    }
+#pragma clang diagnostic pop
+    _cornerToolsItems = cornerToolsItems;
+    if (_cornerToolsItems.count > 0 && !self.cornerView.superview) [self.view addSubview:self.cornerView];
+    //移除corner view 的所有子视图重新加载
+    if (self.cornerView.subviews.count > 0)
+    {
+        for (UIView *view in self.cornerView.subviews) {
+            [view removeFromSuperview];
+        }
+    }
+    //添加子视图
+    for (NSUInteger i = 0; i < _cornerToolsItems.count; i++) {
+        UIView *cornerItem = _cornerToolsItems[i];
+        cornerItem.frame = CGRectMake(0, i * CornerButtonItemHeight, CornerButtonItemWith, CornerButtonItemHeight);
+        [self.cornerView addSubview:cornerItem];
+    }
+    
+    //更新视图
+    [self viewDidLayoutSubviews];
+}
+
+
+#pragma mark - get Method
+
+-(UIView *)cornerView
+{
+    if (!_cornerView && _cornerToolsItems.count > 0) {
+        
+        CGRect frame = CGRectMake((CGRectGetWidth(self.view.frame) - CornerButtonItemWith - 6), (CGRectGetHeight(self.view.frame) - CornerButtonItemHeight * _cornerToolsItems.count - 50), CornerButtonItemWith, CornerButtonItemHeight * _cornerToolsItems.count);
+        _cornerView = [[UIView alloc]initWithFrame:frame];
+        _cornerView.layer.cornerRadius = 4.0f;
+        _cornerView.layer.masksToBounds = YES;
+        _cornerView.backgroundColor = SiniMAINVIEWCOLOR;
+    }
+    
+    return _cornerView;
+}
+-(UIViewController *)siniSignVC{
+    if (!_siniSignVC) {
+        _siniSignVC = [[UIViewController alloc]init];
+    }
+    return _siniSignVC;
+}
+
+/**
+ @return 当前展示页面的索引
+ */
+-(NSUInteger)currentPageIndex{
+    return _documentVC.pageIndex;
+}
+
+/**
+
+ @return 返回当前文档总页数
+ */
+- (NSUInteger)currentDocumentPageCount
+{
+    return _documentVC.pageCount;
+}
+/**
+ 获取当前页面的旋转角度
+ */
+- (NSUInteger)currentRotation {
+    return _documentVC.currentRotation;
+}
+
+-(SiniSearchViewController *)siniSearchVC{
+    if (!_siniSearchVC) {
+        _siniSearchVC = [[SiniSearchViewController alloc]init];
+    }
+    return _siniSearchVC;
+}
+- (SiniOutlineViewController *)siniOutlineVC{
+    if (!_siniOutlineVC) {
+        _siniOutlineVC = [[SiniOutlineViewController alloc]init];
+    }
+    return _siniOutlineVC;
+}
+
+#pragma mark - 设置
+
+/**
+ 获取旋转后的角度
+
+ @param degree 初始角度
+ @param isLeftRotate 是否是左旋转
+ @return 返回旋转后的角度
+ */
+-(NSUInteger)getPDFDirectionWithDegree:(NSUInteger)degree isLeftRotate:(BOOL)isLeftRotate
+{
+    NSUInteger rotationDegree = 0;
+    if (isLeftRotate) {
+        rotationDegree = (degree + 270)%360;
+    }else{
+        rotationDegree = (degree + 90)%360;
+    }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-variable"
+    NSSet *rotateSet = [[NSSet alloc]initWithObjects:@(SiniPDFRotationDirectionTop),@(SiniPDFRotationDirectionRight),@(SiniPDFRotationDirectionBottom),@(SiniPDFRotationDirectionLeft), nil];
+#pragma clang diagnostic pop
+    NSAssert([rotateSet containsObject:@(rotationDegree)], @"旋转角度不能为％@",rotationDegree);
+    NSParameterAssert(degree >= 0);
+    return rotationDegree;
+}
+
+/**
+ 设置PDF的显示方向
+
+ @param direction SiniPDF Rotation Direction enum.
+ */
+-(void)setSiniPDFDirection:(SiniPDFRotationDirection)direction
+{
+//    [self setSiniPDFDirection:direction pathIndex:self.pageIndex];
+}
+
+/**
+ 旋转某一页
+
+ @param direction 方向
+ @param pageIndex 页面索引
+ */
+-(void)setSiniPDFDirection:(SiniPDFRotationDirection)direction pathIndex:(NSUInteger)pageIndex
+{
+  
+}
+- (void)setNightModel:(BOOL)isNight
+{
+    _isNightModel = isNight;
+    [_documentVC setNight:isNight];
+}
+
+-(void)getOutline{
+    [_documentVC getOutline];
+}
+
+-(void)searchPdfWithText:(NSString *)text{
+    
+    [_documentVC searchPdfWords:text];
+}
+
+
+-(void)redo{
+    [_documentVC redo];
+}
+-(void)undo{
+    [_documentVC undo];
+}
+-(void)signature{
+    [_documentVC signature];
+}
+-(void)reSignature{
+    [_documentVC reSignature];
+}
+-(void)showSignatureWithIndex:(int)index{
+    [_documentVC showSignatureWithIndex:index];
+}
+
+#pragma mark - 功能
+
+/**
+ 关闭当前文档
+ */
+- (void)closeCurrentDocument{
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wundeclared-selector"
+   
+    [_documentVC closeCurrentDocment];
+    //5.关闭画笔
+    if (self.siniAnnotationItem.selected) {
+        [self performSelector:@selector(siniAnnotationButtonClicked:) withObject:self.siniAnnotationItem];
+    }
+#pragma clang diagnostic pop
+}
+/**
+ 清除某页面的PolyLine标注
+ 
+ @param pageIndex 页码索引
+ */
+- (void)removePolyLineAnnotationsForPage:(NSUInteger)pageIndex {
+  
+}
+/**
+ 移除当前文档所有的标注
+ */
+- (void)removeAllCurrentDocumentAnnotations {
+    
+}
+/**
+ 跳转到某页
+ */
+- (void)scrollToPage:(NSUInteger)page animated:(BOOL)animated{
+    [_documentVC gotoPage:(int)page animated:animated];
+}
+/**
+ 更新PDF风格
+ 
+ @param instanceblock instance
+ */
+- (void)updateStyleInstanceWithInstance:(void (^)(SiniPDFStyleInstance *instance))instanceblock{
+    _updateStyleReloadPDF = YES;
+    instanceblock(_styleInstance);
+    self.styleInstance = _styleInstance;
+    
+}
+
+
+/**
+ 添加单击PDF事件，可用于EFB相应伸缩页面
+ 
+ @param tapedEvoke 自定义实现块
+ */
+- (void)addSingleTapedPDFEvent:(void(^)(CGPoint viewPoint))tapedEvoke {
+    if (!tapedEvoke) {
+        return;
+    }
+    self.tapedBlock = tapedEvoke;
+}
+
+#pragma mark - view load
+-(void)viewDidLoad
+{
+    [super viewDidLoad];
+}
+
+#pragma mark - view frame
+
+-(void)viewDidLayoutSubviews
+{
+    [super viewDidLayoutSubviews];
+    CGRect frame = CGRectMake((CGRectGetWidth(self.view.frame) - CornerButtonItemWith - 6), (CGRectGetHeight(self.view.frame) - CornerButtonItemHeight * _cornerToolsItems.count - 50), CornerButtonItemWith, CornerButtonItemHeight * _cornerToolsItems.count);
+    _cornerView.frame = frame;
+    
+}
+
+#pragma mark - search delegate
+-(void)searchPdfWorfs:(NSString *)text fromIndex:(int)index progress:(void (^)(int, int))progress withResult:(void (^)(NSArray *))result{
+
+    [_documentVC searchPdfWorfs:text fromIndex:index progress:^(int total, int currentIndex) {
+        progress(total,currentIndex);
+    } withResult:^(NSArray *results) {
+        result(results);
+    }];
+    NSLog(@"+++++++");
+}
+- (NSArray <PageStringModel *> *)searchWithString:(NSString *)string model:(PageStringModel *)model{
+    
+   __block NSArray *result = [NSArray array];
+   __block CGFloat speed = 0;
+    [_documentVC searchPdfWorfs:string fromIndex:model.pageNumber progress:^(int total, int currentIndex) {
+        
+        speed = (CGFloat)currentIndex/total;
+        NSLog(@"speed==%f",speed);
+    } withResult:^(NSArray *results) {
+        result = results;
+        NSLog(@"result==%@",result);
+    }];
+    NSLog(@"+++++++");
+    return result;
+    
+//    if(model){
+//       return [_documentVC searchPdfWords:string fromIndex:model.pageNumber];
+//    }else{
+//        return [_documentVC searchPdfWords:string];
+//    }
+    
+}
+/**
+ *  显示搜索详细信息
+ */
+- (void)showSearchDetailWithModel:(PageStringModel *)model{
+    //跳转到某页
+    [self scrollToPage:(NSUInteger)model.pageNumber animated:NO];
+    [self dismissViewControllerAnimated:YES completion:nil];
+}
+#pragma mark - outline delegate
+/**
+ *  跳转
+ */
+- (void)didClickedOutlineWithModel:(PagesModel *)model{
+    [self scrollToPage:model.page animated:YES];
+}
+
+/**
+ *  获取目录
+ */
+- (NSArray <PagesModel *> *)getChildsOutlineWithModel:(PagesModel *)model{
+    return [_documentVC getOutlineWithSup:model];
+}
+@end
+
+@implementation SiniCustomePDFViewcontroller (SwichPDFFile)
+/**
+ 切换PDF
+ 
+ @param fileUrl 文件地址
+ */
+-(void)displayDocumentWithURL:(NSURL *)fileUrl uid:(NSString *)uid
+{
+    if (_documentVC) {
+        [_documentVC closeCurrentDocment];
+        //5.关闭画笔
+        if (self.siniAnnotationItem.selected) {
+            [self performSelector:@selector(siniAnnotationButtonClicked:) withObject:self.siniAnnotationItem];
+        }
+        [_documentVC.view removeFromSuperview];
+        [_documentVC removeFromParentViewController];
+        _documentVC = nil;
+    }
+    
+    _documentVC = [[MuDocumentViewController alloc]init];
+    _documentVC.view.frame = CGRectMake(0, 0, self.view.frame.size.width, self.view.frame.size.height);
+    _documentVC.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
+    [self.view addSubview:_documentVC.view];
+    [self addChildViewController:_documentVC];
+    [_documentVC didMoveToParentViewController:self];
+    
+    NSString *filePath = fileUrl.path;
+    MuDocRef *docRef = [[MuDocRef alloc] initWithFilePath:filePath];
+    _documentVC.filePath = filePath;
+    _documentVC.docRef = docRef;
+    _documentVC.uuid = uid;
+    [self.view bringSubviewToFront:_cornerView];
+}
+/**
+ 
+ 用data 切换PDF。
+ @param data 2进制
+ */
+-(void)displayDocumentWithData:(NSData *)data uid:(NSString *)uid
+{
+}
+
+
+
+@end
+
+
+@implementation SiniCustomePDFViewcontroller (CornerTools)
+
+static const char * siniAnnotationItemIdentify = "siniAnnotationItemIdentify";
+-(UIButton *)siniAnnotationItem
+{
+    id obj = objc_getAssociatedObject(self, &siniAnnotationItemIdentify);
+    if (!obj) {
+        UIButton *siniAnnotationItem = [UIButton buttonWithType:UIButtonTypeCustom];
+        siniAnnotationItem.contentMode = UIViewContentModeLeft;
+        
+        NSBundle *bundle = [NSBundle bundleWithIdentifier:@"SiniCustomePDFkit"];
+        UIImage *unpressImage = [UIImage imageNamed:@"penUnpress" inBundle:bundle compatibleWithTraitCollection:nil];
+        
+        UIImage *pressImage = [UIImage imageNamed:@"penPress" inBundle:bundle compatibleWithTraitCollection:nil];
+        
+        [siniAnnotationItem setImage:unpressImage forState:UIControlStateNormal];
+        [siniAnnotationItem setImage:pressImage forState:UIControlStateSelected];
+        
+        siniAnnotationItem.selected = NO;
+        siniAnnotationItem.frame = CGRectMake(0, 0, 54, 49);
+        
+        [siniAnnotationItem addTarget:self action:@selector(siniAnnotationButtonClicked:) forControlEvents:UIControlEventTouchUpInside];
+
+        objc_setAssociatedObject(self, &siniAnnotationItemIdentify, siniAnnotationItem, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return objc_getAssociatedObject(self, &siniAnnotationItemIdentify);
+
+}
+-(void)siniAnnotationButtonClicked:(UIButton *)sender
+{
+    sender.selected = !sender.selected;
+    [_documentVC inkWithStatus:sender.selected];
+    
+    if (self.cornerButtonActionComplete) self.cornerButtonActionComplete(sender);
+}
+
+static const char * siniLeftRotationItemIdentify = "siniLeftRotationItemIdentify";
+-(UIButton *)siniLeftRotationItem
+{
+    id obj = objc_getAssociatedObject(self, &siniLeftRotationItemIdentify);
+    if (!obj) {
+       UIButton *siniLeftRotationItem = [UIButton buttonWithType:UIButtonTypeCustom];
+        siniLeftRotationItem.frame = CGRectMake(0, 0, 54, 49);
+        [siniLeftRotationItem addTarget:self action:@selector(leftRotation:) forControlEvents:UIControlEventTouchUpInside];
+        
+        NSBundle *bundle = [NSBundle bundleWithIdentifier:@"SiniCustomePDFkit"];
+        UIImage *image = [UIImage imageNamed:@"左旋转剪头" inBundle:bundle compatibleWithTraitCollection:nil];
+        [siniLeftRotationItem setImage:image forState:UIControlStateNormal];
+        
+        objc_setAssociatedObject(self, &siniLeftRotationItemIdentify, siniLeftRotationItem, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return objc_getAssociatedObject(self, &siniLeftRotationItemIdentify);
+
+}
+-(void)leftRotation:(id)sender
+{
+    [_documentVC leftRotation];
+    if (self.cornerButtonActionComplete) self.cornerButtonActionComplete(sender);
+    
+}
+static const char * siniRightRotationItemIdentify = "siniRightRotationItemIdentify";
+-(UIButton *)siniRightRotationItem
+{
+    id obj = objc_getAssociatedObject(self, &siniRightRotationItemIdentify);
+    if (!obj) {
+        UIButton * siniRightRotationItem = [UIButton buttonWithType:UIButtonTypeCustom];
+        siniRightRotationItem.frame = CGRectMake(0, 0, 54, 49);
+        [siniRightRotationItem addTarget:self action:@selector(rightRotation:) forControlEvents:UIControlEventTouchUpInside];
+        NSBundle *bundle = [NSBundle bundleWithIdentifier:@"SiniCustomePDFkit"];
+        UIImage *image = [UIImage imageNamed:@"右旋转剪头" inBundle:bundle compatibleWithTraitCollection:nil];
+        [siniRightRotationItem setImage:image forState:UIControlStateNormal];
+
+        objc_setAssociatedObject(self, &siniRightRotationItemIdentify, siniRightRotationItem, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return objc_getAssociatedObject(self, &siniRightRotationItemIdentify);
+}
+-(void)rightRotation:(id)sender
+{
+    [_documentVC rightRotation];
+    if (self.cornerButtonActionComplete) self.cornerButtonActionComplete(sender);
+}
+static const char * siniSearchItemIdentify = "siniSearchItemIdentify";
+- (UIButton *)siniMuSearchItem{
+    id obj = objc_getAssociatedObject(self, &siniSearchItemIdentify);
+    if (!obj) {
+        UIButton * siniRightRotationItem = [UIButton buttonWithType:UIButtonTypeCustom];
+        siniRightRotationItem.frame = CGRectMake(0, 0, 54, 49);
+        [siniRightRotationItem addTarget:self action:@selector(siniSearchItemClicked:) forControlEvents:UIControlEventTouchUpInside];
+        NSBundle *bundle = [NSBundle bundleWithIdentifier:@"SiniCustomePDFkit"];
+        UIImage *image = [UIImage imageNamed:@"查询" inBundle:bundle compatibleWithTraitCollection:nil];
+        [siniRightRotationItem setImage:image forState:UIControlStateNormal];
+        
+        objc_setAssociatedObject(self, &siniSearchItemIdentify, siniRightRotationItem, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return objc_getAssociatedObject(self, &siniSearchItemIdentify);
+}
+- (void)siniSearchItemClicked:(UIButton *)sender{
+    //弹出搜索框，开始搜索
+    self.siniSearchVC.modalPresentationStyle = UIModalPresentationPopover;
+    self.siniSearchVC.delegate = self;
+    UIPopoverPresentationController *popprensentVC = self.siniSearchVC.popoverPresentationController;
+    self.siniSearchVC.preferredContentSize = CGSizeMake(400, 650);
+    popprensentVC.sourceRect = sender.frame;
+    popprensentVC.sourceView = sender.superview;
+    [self presentViewController:self.siniSearchVC animated:YES completion:nil];
+    if (self.cornerButtonActionComplete) self.cornerButtonActionComplete(sender);
+}
+//目录
+static const char * siniOutLineItemIdentify = "siniOutLineItemIdentify";
+- (UIButton *)siniMuOutlineItem{
+    id obj = objc_getAssociatedObject(self, &siniOutLineItemIdentify);
+    if (!obj) {
+        UIButton * siniRightRotationItem = [UIButton buttonWithType:UIButtonTypeCustom];
+        siniRightRotationItem.frame = CGRectMake(0, 0, 54, 49);
+        [siniRightRotationItem addTarget:self action:@selector(siniOutlineItemClicked:) forControlEvents:UIControlEventTouchUpInside];
+        NSBundle *bundle = [NSBundle bundleWithIdentifier:@"SiniCustomePDFkit"];
+        UIImage *image = [UIImage imageNamed:@"更多" inBundle:bundle compatibleWithTraitCollection:nil];
+        [siniRightRotationItem setImage:image forState:UIControlStateNormal];
+        
+        objc_setAssociatedObject(self, &siniOutLineItemIdentify, siniRightRotationItem, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return objc_getAssociatedObject(self, &siniOutLineItemIdentify);
+}
+- (void)siniOutlineItemClicked:(UIButton *)sender
+{
+    //弹出搜索框，开始搜索
+    self.siniOutlineVC.modalPresentationStyle = UIModalPresentationPopover;
+    self.siniOutlineVC.delegate = self;
+    UIPopoverPresentationController *popprensentVC = self.siniOutlineVC.popoverPresentationController;
+    self.siniOutlineVC.preferredContentSize = CGSizeMake(400, 650);
+    popprensentVC.sourceRect = sender.frame;
+    popprensentVC.sourceView = sender.superview;
+    [self presentViewController:self.siniOutlineVC animated:YES completion:nil];
+    if (self.cornerButtonActionComplete) self.cornerButtonActionComplete(sender);
+}
+
+- (void)addCornerButtonCompleteAction:(void (^)(id target))complete
+{
+    self.cornerButtonActionComplete = complete;
+}
+
+@end
