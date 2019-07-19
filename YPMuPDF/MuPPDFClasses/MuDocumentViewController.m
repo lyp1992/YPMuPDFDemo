@@ -26,6 +26,7 @@
 #import "PreferencesTool.h"
 #import "PreferencesModel.h"
 #import "DrawViewController.h"
+#import "MUPdfImageTool.h"
 
 #import "MLeaksFinder.h"
 
@@ -338,7 +339,8 @@ enum{
 //    self.switchNightButton = [self newResourceBasedButton:@"切换试图" withAction:@selector(onSwitchNight:)];
     
     self.operationQueue = [[NSOperationQueue alloc]init];
-    
+    [self.operationQueue setMaxConcurrentOperationCount:1];
+
     [self setView:view];
     
 }
@@ -1047,6 +1049,8 @@ enum{
     NSMutableArray *wordMArr = [NSMutableArray array];
     int count = 0;
     MuPdfPageTool *pageTool = [[MuPdfPageTool alloc]init];
+    MuPdfImageTool *imageTool = [[MuPdfImageTool alloc]init];
+
     for (int i = index; i < pageNumbers; i++) {
         NSArray *words = [pageTool enumerateWords:self.docRef.doc withContext:ctx withPageNumber:i];
         NSString *wordStr = [[NSString alloc]init];
@@ -1063,7 +1067,7 @@ enum{
         
         if (wordStr && ![wordStr isEqualToString:@" "] && wordStr.length > 0 && isContainWord) {
 
-            UIImage *image = [pageTool loadThumbnailWith:self.docRef.doc withContext:ctx withPageNumber:i];
+            UIImage *image = [imageTool loadThumbnailWith:self.docRef.doc withContext:ctx withPageNumber:i];
 //            对字符串进行处理
             NSArray *rangeArray = [pageTool rangeOfSubString:text inString:wordStr];
             for (NSValue *rgValue in rangeArray) {
@@ -1087,51 +1091,86 @@ enum{
 }
 
 -(void)searchPdfWorfs:(NSString *)text fromIndex:(int)index progress:(void (^)(int, int))progress withResult:(void (^)(NSArray *))result{
-//  @autoreleasepool {
-     //    获取页数
-        int pageNumbers = fz_count_pages(ctx, self.docRef.doc);
-     NSMutableArray *wordMArr = [NSMutableArray array];
-     int count = 0;
-    MuPdfPageTool *pageTool = [[MuPdfPageTool alloc]init];
-     for (int i = index; i < pageNumbers; i++) {
-         NSArray *words = [pageTool enumerateWords:self.docRef.doc withContext:ctx withPageNumber:i];
-         NSString *wordStr = [[NSString alloc]init];
-         for (NSArray *lines in words) {
-             for (MuWord *word in lines) {
-                 NSString *str = [NSString stringWithFormat:@"%@ ",word.string];
-                 wordStr = [wordStr stringByAppendingString:str];
-             }
-         }
-         
-         //        搜索是否包含text文字
-         BOOL isContainWord = [pageTool SearchForTextContainsWord:wordStr withWord:text];
-         
-         if (wordStr && ![wordStr isEqualToString:@" "] && wordStr.length > 0 && isContainWord) {
-             UIImage *image = [pageTool loadThumbnailWith:self.docRef.doc withContext:ctx withPageNumber:i];
-             //            对字符串进行处理
-             NSArray *rangeArray = [pageTool rangeOfSubString:text inString:wordStr];
-             for (NSValue *rgValue in rangeArray) {
-                 PageStringModel *stringModel = [[PageStringModel alloc]init];
-                 stringModel.wordString = wordStr;
-                 stringModel.pageNumber = i;
-                 stringModel.pdfImage = image;
-                 
-                 NSRange range = [rgValue rangeValue];
-                 NSAttributedString *arrtibutrstring = [pageTool setAttributeStringFromRange:range inString:wordStr];
-                 stringModel.attributeString = arrtibutrstring;
-                 [wordMArr addObject:stringModel];
-             }
-             count++;
-         }
+    //    获取页数
+    //    dispatch_async(self.serialQueue, ^{
     
-             progress(pageNumbers,i);
-     
-         if (count >= 3) {//大于三张pdf 就返回
-             break;
-         }
-     }
-        result(wordMArr);
-//  }
+    //    取出operations
+    //    NSArray *operations = self.operationQueue.operations;
+    //    int operationIndex = 0;
+    //    NSOperation *operationCurrent;
+    //    for (int i = 0; i<operations.count; i++) {
+    //        operationCurrent = self.operationQueue.operations[i];
+    //        if (operationCurrent.isConcurrent && !operationCurrent.isFinished && i != operations.count - 1) {
+    //            operationIndex = i;
+    //            self.operationQueue.suspended = YES;
+    //            break;
+    //        }
+    //    }
+    ////    取消当前正在进行的s后面所有的操作。
+    //    for (int i = operationIndex ; i< operations.count; i++) {
+    //        NSOperation *unOperation = self.operationQueue.operations[i];
+    //        [unOperation cancel];
+    //    }
+    ////    如果被暂停了，再次启动
+    //    if (self.operationQueue.isSuspended == YES) {
+    //        self.operationQueue.suspended = NO;
+    //    }
+    
+    [self.operationQueue cancelAllOperations];
+    
+    NSBlockOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
+        
+        int pageNumbers = fz_count_pages(ctx, self.docRef.doc);
+        NSMutableArray *wordMArr = [NSMutableArray array];
+        int count = 0;
+        
+        for (int i = index; i < pageNumbers; i++) {
+            if (count >= 3) {
+                break;
+            }
+            MuPdfPageTool *pageTool = [[MuPdfPageTool alloc]init];
+            MuPdfImageTool *imageTool = [[MuPdfImageTool alloc]init];
+            NSArray *words = [pageTool enumerateWords:self.docRef.doc withContext:ctx withPageNumber:i];
+            
+            NSString *wordStr = [[NSString alloc]init];
+            for (NSArray *lines in words) {
+                for (MuWord *word in lines) {
+                    NSString *str = [NSString stringWithFormat:@"%@ ",word.string];
+                    wordStr = [wordStr stringByAppendingString:str];
+                }
+            }
+            
+            //        搜索是否包含text文字
+            BOOL isContainWord = [pageTool SearchForTextContainsWord:wordStr withWord:text];
+            
+            if (wordStr && ![wordStr isEqualToString:@" "] && wordStr.length > 0 && isContainWord) {
+                UIImage *image = [imageTool loadThumbnailWith:self.docRef.doc withContext:ctx withPageNumber:i];
+                //            对字符串进行处理
+                NSArray *rangeArray = [pageTool rangeOfSubString:text inString:wordStr];
+                for (NSValue *rgValue in rangeArray) {
+                    PageStringModel *stringModel = [[PageStringModel alloc]init];
+                    stringModel.wordString = wordStr;
+                    stringModel.pageNumber = i;
+                    stringModel.pdfImage = image;
+                    
+                    NSRange range = [rgValue rangeValue];
+                    NSAttributedString *arrtibutrstring = [pageTool setAttributeStringFromRange:range inString:wordStr];
+                    stringModel.attributeString = arrtibutrstring;
+                    [wordMArr addObject:stringModel];
+                }
+                count++;
+            }
+            dispatch_async(dispatch_get_main_queue(), ^{
+                progress(pageNumbers,i);
+            });
+            
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            result(wordMArr);
+        });
+    }];
+    [self.operationQueue addOperation:operation];
+
 
 }
 

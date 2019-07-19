@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 //获取pdf中的文字(fz_document *doc, fz_page *page)
 -(NSMutableArray *)enumerateWords:(fz_document *)doc withContext:(fz_context *)ctx2 withPageNumber:(int)pageNumber;
+-(void)enumerateWords:(fz_document*)doc withPageNumber:(int)pageNumber withResult:(void(^)(NSArray *results))result;
+
 
 // 搜索一段文字是否包含某些字
 -(BOOL)SearchForTextContainsWord:(NSString *)text withWord:(NSString *)word;
@@ -31,9 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSArray *)rangeOfSubString:(NSString *)subStr inString:(NSString *)string;
 - (NSAttributedString *)setAttributeStringFromRange:(NSRange)range inString:(NSString *)inString;
 
--(UIImage *)loadThumbnailWith:(fz_document *)doc withContext:(fz_context *)ctx2 withPageNumber:(int)pageNumber;
 
--(void)clearMemory;
 
 @end
 

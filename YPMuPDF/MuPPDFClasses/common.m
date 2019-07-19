@@ -51,6 +51,10 @@ static void releasePixmap(void *info, const void *data, size_t size){
 }
 
 CGDataProviderRef CreateWrappedPixmap(fz_pixmap *pix){
+    if (!pix) {
+        return NULL;
+    }
+
 	unsigned char *samples = fz_pixmap_samples(ctx, pix);
 	int w = fz_pixmap_width(ctx, pix);
 	int h = fz_pixmap_height(ctx, pix);
@@ -59,6 +63,10 @@ CGDataProviderRef CreateWrappedPixmap(fz_pixmap *pix){
 }
 
 CGImageRef CreateCGImageWithPixmap(fz_pixmap *pix, CGDataProviderRef cgdata){
+    if (!pix) {
+        return NULL;
+    }
+
 	int w = fz_pixmap_width(ctx, pix);
 	int h = fz_pixmap_height(ctx, pix);
 //     NSLog(@"w==%d==%d",w,h);

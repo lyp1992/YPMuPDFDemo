@@ -230,6 +230,7 @@
 		9991DC1C22C7068800A66A74 /* MuPdfPageTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 995B66C722C4DB2E00027563 /* MuPdfPageTool.m */; };
 		9991DC1D22C7068D00A66A74 /* MuOutlineController.m in Sources */ = {isa = PBXBuildFile; fileRef = 995B66B522C4BE6600027563 /* MuOutlineController.m */; };
 		9991DC1E22C706E100A66A74 /* MuWord.m in Sources */ = {isa = PBXBuildFile; fileRef = 9924447522C6144D00000C34 /* MuWord.m */; };
+		99ADC5FF22E1A1EB004228B7 /* MuPdfImageTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 99ADC5FE22E1A1EB004228B7 /* MuPdfImageTool.m */; };
 		99CDD3BB22D72D1B002BFCF1 /* UINavigationController+MemoryLeak.m in Sources */ = {isa = PBXBuildFile; fileRef = 99CDD3A422D72D1B002BFCF1 /* UINavigationController+MemoryLeak.m */; };
 		99CDD3BC22D72D1B002BFCF1 /* MLeakedObjectProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 99CDD3A822D72D1B002BFCF1 /* MLeakedObjectProxy.m */; };
 		99CDD3BD22D72D1B002BFCF1 /* UIView+MemoryLeak.m in Sources */ = {isa = PBXBuildFile; fileRef = 99CDD3AA22D72D1B002BFCF1 /* UIView+MemoryLeak.m */; };
@@ -530,6 +531,8 @@
 		99673DBD22CB36F500EC9ED6 /* PreferencesTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PreferencesTool.m; sourceTree = "<group>"; };
 		99673DBF22CB374700EC9ED6 /* StringEXtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StringEXtension.h; sourceTree = "<group>"; };
 		99673DC022CB374800EC9ED6 /* StringEXtension.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StringEXtension.m; sourceTree = "<group>"; };
+		99ADC5FD22E1A1EB004228B7 /* MuPdfImageTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MuPdfImageTool.h; sourceTree = "<group>"; };
+		99ADC5FE22E1A1EB004228B7 /* MuPdfImageTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MuPdfImageTool.m; sourceTree = "<group>"; };
 		99CDD3A422D72D1B002BFCF1 /* UINavigationController+MemoryLeak.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UINavigationController+MemoryLeak.m"; sourceTree = "<group>"; };
 		99CDD3A522D72D1B002BFCF1 /* MLeaksMessenger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MLeaksMessenger.h; sourceTree = "<group>"; };
 		99CDD3A622D72D1B002BFCF1 /* UITabBarController+MemoryLeak.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UITabBarController+MemoryLeak.h"; sourceTree = "<group>"; };
@@ -963,6 +966,8 @@
 		7B8EA9771F3052BD00B931C2 /* Model */ = {
 			isa = PBXGroup;
 			children = (
+				99ADC5FD22E1A1EB004228B7 /* MuPdfImageTool.h */,
+				99ADC5FE22E1A1EB004228B7 /* MuPdfImageTool.m */,
 				7B8EA9781F3052E900B931C2 /* AnnotsModel.h */,
 				7B8EA9791F3052E900B931C2 /* AnnotsModel.m */,
 				995B66C322C4D09400027563 /* PagesModel.h */,
@@ -1613,6 +1618,7 @@
 				127310F422D487430086F721 /* NSBundle+MJRefresh.m in Sources */,
 				1273110022D487430086F721 /* MJRefreshHeader.m in Sources */,
 				99CDD3BD22D72D1B002BFCF1 /* UIView+MemoryLeak.m in Sources */,
+				99ADC5FF22E1A1EB004228B7 /* MuPdfImageTool.m in Sources */,
 				7B6763CD1F0F1F2A005C8CD1 /* MuAnnotSelectView.m in Sources */,
 				127310F222D487430086F721 /* MJRefreshConfig.m in Sources */,
 				7B5120971F2047D2007325A7 /* YPAnnotSelectView.m in Sources */,

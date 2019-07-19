@@ -38,9 +38,18 @@
             if (self.dataSource.count > 0) {
                 model = self.dataSource.lastObject;
             }
-//            NSArray *subDataSource = [blockSelf.delegate searchWithString:self.searchBar.text model:model];
-//            [self.dataSource addObjectsFromArray:subDataSource];
-//            [self.tableView reloadData];
+            //            NSArray *subDataSource = [blockSelf.delegate searchWithString:self.searchBar.text model:model];
+            //            [self.dataSource addObjectsFromArray:subDataSource];
+            //            [self.tableView reloadData];
+            
+            [blockSelf.delegate searchPdfWorfs:self.searchBar.text fromIndex:model.pageNumber progress:^(int total, int currentIndex) {
+                
+                [blockSelf.progressView setProgress:(CGFloat)currentIndex/total animated:YES];
+            } withResult:^(NSArray *results) {
+                [blockSelf.progressView setProgress:0];
+                blockSelf.dataSource = [NSMutableArray arrayWithArray:results];
+                [blockSelf.tableView reloadData];
+            }];
             
         }
         [self.tableView.mj_footer endRefreshing];
@@ -82,8 +91,10 @@
 -(UIProgressView *)progressView{
     if (!_progressView) {
         _progressView = [[UIProgressView alloc]init];
-        _progressView.frame = CGRectMake(0, _searchBar.frame.size.height, self.view.frame.size.width, 2);
+        
+        _progressView.frame = CGRectMake(1, _searchBar.frame.size.height, self.view.frame.size.width - 2, 2);
         _progressView.progressViewStyle = UIProgressViewStyleDefault;
+        _progressView.autoresizingMask = UIViewAutoresizingFlexibleWidth;
         _progressView.progressTintColor = [UIColor blueColor];
         
     }
@@ -95,31 +106,46 @@
 
 #pragma search bar delegate
 - (void)searchBar:(UISearchBar *)searchBar textDidChange:(NSString *)searchText{
+    
     if (searchBar.text.length == 0) {
         [self.dataSource removeAllObjects];
         [self.tableView reloadData];
         return;
     }
+    
+    //    每次进来，删除原来的数据，重新搜索。
+    [self.dataSource removeAllObjects];
+    [self.tableView reloadData];
+    
     self.progressView.progress = 0;
     if (self.delegate) {
-        NSArray *array = [self.delegate searchWithString:searchBar.text model:nil];
-//        __weak typeof(self)weakSelf = self;
-//        [self.delegate searchPdfWorfs:searchBar.text fromIndex:0 progress:^(int total, int currentIndex) {
-//            NSLog(@"%f",(CGFloat)currentIndex/total);
-////            [weakSelf.progressView setProgress:(CGFloat)currentIndex/total animated:YES];
-//        } withResult:^(NSArray *results) {
-//            weakSelf.dataSource = [NSMutableArray arrayWithArray:results];
-//            [weakSelf.tableView reloadData];
-//        }];
-        self.dataSource = [NSMutableArray arrayWithArray:array];
-        [self.tableView reloadData];
+        //        NSArray *array = [self.delegate searchWithString:searchBar.text model:nil];
+        __weak typeof(self)weakSelf = self;
+        [self.delegate searchPdfWorfs:searchBar.text fromIndex:0 progress:^(int total, int currentIndex) {
+            
+            [weakSelf.progressView setProgress:(CGFloat)currentIndex/total animated:YES];
+        } withResult:^(NSArray *results) {
+            [weakSelf.progressView setProgress:0];
+            weakSelf.dataSource = [NSMutableArray arrayWithArray:results];
+            [weakSelf.tableView reloadData];
+        }];
     }
 }
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar{
     if (self.delegate) {
-//        NSArray *array = [self.delegate searchWithString:searchBar.text model:nil];
-//        self.dataSource = [NSMutableArray arrayWithArray:array];
-//        [self.tableView reloadData];
+        //        NSArray *array = [self.delegate searchWithString:searchBar.text model:nil];
+        //        self.dataSource = [NSMutableArray arrayWithArray:array];
+        //        [self.tableView reloadData];
+        
+        __weak typeof(self)weakSelf = self;
+        [self.delegate searchPdfWorfs:searchBar.text fromIndex:0 progress:^(int total, int currentIndex) {
+            
+            [weakSelf.progressView setProgress:(CGFloat)currentIndex/total animated:YES];
+        } withResult:^(NSArray *results) {
+            [weakSelf.progressView setProgress:0];
+            weakSelf.dataSource = [NSMutableArray arrayWithArray:results];
+            [weakSelf.tableView reloadData];
+        }];
     }
 }
 #pragma mark - table view delegate
@@ -147,13 +173,13 @@
     PageStringModel *model = self.dataSource[indexPath.row];
     //图片
     UIImageView *imageView = [[UIImageView alloc]initWithFrame:CGRectMake(20, (kRowHeight - 70)/2, 70, 70)];
-//#if DEBUG
-//    NSData * data = UIImagePNGRepresentation(model.pdfImage);
-//    NSString *docPath = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0];
-//    NSString *uuid = [NSUUID UUID].UUIDString;
-//    NSString *fileName = [NSString stringWithFormat:@"%@.png",uuid];
-//    [data writeToFile:[docPath stringByAppendingPathComponent:fileName] atomically:YES];
-//#endif
+    //#if DEBUG
+    //    NSData * data = UIImagePNGRepresentation(model.pdfImage);
+    //    NSString *docPath = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES)[0];
+    //    NSString *uuid = [NSUUID UUID].UUIDString;
+    //    NSString *fileName = [NSString stringWithFormat:@"%@.png",uuid];
+    //    [data writeToFile:[docPath stringByAppendingPathComponent:fileName] atomically:YES];
+    //#endif
     imageView.image = model.pdfImage;
     [cell.contentView addSubview:imageView];
     //页面
@@ -168,7 +194,7 @@
     contentLabel.numberOfLines = 0;
     contentLabel.attributedText = model.attributeString;
     [cell.contentView addSubview:contentLabel];
-
+    
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -178,13 +204,13 @@
     }
 }
 /*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
 
 @end

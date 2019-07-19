@@ -14,202 +14,14 @@
 #import "common.h"
 
 @interface MuPdfPageTool ()
-@property(nonatomic,assign) fz_page *page;
 
-@property(nonatomic,assign) fz_display_list *page_list;
-
-@property(nonatomic,assign) fz_display_list *annot_list;
-
-@property(nonatomic,assign) fz_pixmap *image_pix;
-@property(nonatomic,assign) CGDataProviderRef imageData;
-@property(nonatomic,assign) CGSize pageSize;
+@property (nonatomic, strong) dispatch_semaphore_t semaphore;
 
 @end
 
 @implementation MuPdfPageTool
 
 static MuPdfPageTool *tool;
-
-static fz_display_list *create_page_list(fz_document *doc, fz_page *page){
-    fz_display_list *list = NULL;
-    fz_device *dev = NULL;
-    
-    fz_var(dev);
-    fz_try(ctx){
-        list = fz_new_display_list(ctx,NULL);
-        dev = fz_new_list_device(ctx, list);
-     
-        if (page->run_page_contents) {
-            
-        }
-        fz_run_page_contents(ctx, page, dev, &fz_identity, NULL);
-        //        fz_close_device(ctx, dev);
-    }
-    fz_always(ctx){
-        fz_drop_device(ctx, dev);
-    }
-    fz_catch(ctx){
-        return NULL;
-    }
-    
-    return list;
-}
-
-static fz_display_list *create_annot_list(fz_document *doc, fz_page *page)
-{
-    fz_display_list *list = NULL;
-    fz_device *dev = NULL;
-    
-    fz_var(dev);
-    fz_try(ctx)
-    {
-        fz_annot *annot;
-        pdf_document *idoc = pdf_specifics(ctx, doc);
-        
-        if (idoc)
-        pdf_update_page(ctx, (pdf_page *)page);
-        list = fz_new_display_list(ctx, NULL);
-        dev = fz_new_list_device(ctx, list);
-        for (annot = fz_first_annot(ctx, page); annot; annot = fz_next_annot(ctx, annot))
-        fz_run_annot(ctx, annot, dev, &fz_identity, NULL);
-        fz_close_device(ctx, dev);
-    }
-    fz_always(ctx)
-    {
-        fz_drop_device(ctx, dev);
-    }
-    fz_catch(ctx)
-    {
-        return NULL;
-    }
-    
-    return list;
-}
-
-static fz_pixmap *renderPixmap(fz_document *doc, fz_display_list *page_list, fz_display_list *annot_list, CGSize pageSize, CGSize screenSize, CGRect tileRect, float zoom)
-{
-    fz_irect bbox;
-    fz_rect rect;
-    fz_matrix ctm;
-    fz_device *dev = NULL;
-    fz_pixmap *pix = NULL;
-    CGSize scale;
-    
-    screenSize.width *= 1;
-    screenSize.height *= 1;
-    tileRect.origin.x *= 1;
-    tileRect.origin.y *= 1;
-    tileRect.size.width *= 1;
-    tileRect.size.height *= 1;
-    
-    scale = fitPageToScreen(pageSize, screenSize);
-    fz_scale(&ctm, scale.width * zoom, scale.height * zoom);
-    
-    bbox.x0 = tileRect.origin.x;
-    bbox.y0 = tileRect.origin.y;
-    bbox.x1 = tileRect.origin.x + tileRect.size.width;
-    bbox.y1 = tileRect.origin.y + tileRect.size.height;
-    fz_rect_from_irect(&rect, &bbox);
-    
-    fz_var(dev);
-    fz_var(pix);
-    fz_try(ctx)
-    {
-        pix = fz_new_pixmap_with_bbox(ctx, fz_device_rgb(ctx), &bbox, 1);
-        fz_clear_pixmap_with_value(ctx, pix, 255);
-        
-        dev = fz_new_draw_device(ctx, NULL, pix);
-        fz_run_display_list(ctx, page_list, dev, &ctm, &rect, NULL);
-        fz_run_display_list(ctx, annot_list, dev, &ctm, &rect, NULL);
-        
-        fz_close_device(ctx, dev);
-    }
-    fz_always(ctx)
-    {
-        fz_drop_device(ctx, dev);
-    }
-    fz_catch(ctx)
-    {
-        fz_drop_pixmap(ctx, pix);
-        return NULL;
-    }
-    
-    return pix;
-}
-//反色
-static UIImage *newInvertImageWithPixmap(fz_pixmap *pix, CGDataProviderRef cgdata){
-    CGImageRef  imageRef = CreateCGImageWithPixmap(pix, cgdata);
-    size_t width  = CGImageGetWidth(imageRef);
-    size_t height = CGImageGetHeight(imageRef);
-    size_t                  bitsPerComponent;
-    bitsPerComponent = CGImageGetBitsPerComponent(imageRef);
-    size_t                  bitsPerPixel;
-    bitsPerPixel = CGImageGetBitsPerPixel(imageRef);
-    size_t                  bytesPerRow;
-    bytesPerRow = CGImageGetBytesPerRow(imageRef);
-    CGColorSpaceRef         colorSpace;
-    colorSpace = CGImageGetColorSpace(imageRef);
-    CGBitmapInfo            bitmapInfo;
-    bitmapInfo = CGImageGetBitmapInfo(imageRef);
-    bool                    shouldInterpolate;
-    shouldInterpolate = CGImageGetShouldInterpolate(imageRef);
-    CGColorRenderingIntent  intent;
-    intent = CGImageGetRenderingIntent(imageRef);
-    CGDataProviderRef   dataProvider;
-    dataProvider = CGImageGetDataProvider(imageRef);
-    CFDataRef   data;
-    UInt8*      buffer;
-    data = CGDataProviderCopyData(dataProvider);
-    buffer = (UInt8*)CFDataGetBytePtr(data);
-    NSUInteger  x, y;
-    for (y = 0; y < height; y++) {
-        for (x = 0; x < width; x++) {
-            UInt8*  tmp;
-            tmp = buffer + y * bytesPerRow + x * 4;
-            UInt8 red,green,blue;
-            red = *(tmp + 0);
-            green = *(tmp + 1);
-            blue = *(tmp + 2);
-            
-            //            UInt8 brightness;
-            *(tmp + 0) = 255 - red;
-            *(tmp + 1) = 255 - green;
-            *(tmp + 2) = 255 - blue;
-            
-            
-        }
-    }
-    CFDataRef   effectedData;
-    effectedData = CFDataCreate(NULL, buffer, CFDataGetLength(data));
-    CGDataProviderRef   effectedDataProvider;
-    effectedDataProvider = CGDataProviderCreateWithCFData(effectedData);
-    CGImageRef  effectedCgImage;
-    UIImage*    effectedImage;
-    effectedCgImage = CGImageCreate(
-                                    width, height,
-                                    bitsPerComponent, bitsPerPixel, bytesPerRow,
-                                    colorSpace, bitmapInfo, effectedDataProvider,
-                                    NULL, shouldInterpolate, intent);
-    effectedImage = [[UIImage alloc] initWithCGImage:effectedCgImage
-                                               scale:screenScale
-                                         orientation:UIImageOrientationUp];
-    CGImageRelease(effectedCgImage);
-    CGImageRelease(imageRef);
-    CFRelease(effectedDataProvider);
-    CFRelease(effectedData);
-    CFRelease(data);
-    return effectedImage;
-}
-
-//正常色
-static UIImage *newImageWithPixmap(fz_pixmap *pix, CGDataProviderRef cgdata){
-    CGImageRef cgimage = CreateCGImageWithPixmap(pix, cgdata);
-    UIImage *image = [[UIImage alloc] initWithCGImage:cgimage
-                                                scale:screenScale
-                                          orientation:UIImageOrientationUp];
-    CGImageRelease(cgimage);
-    return image;
-}
 
 //+(MuPdfPageTool *)shareInstance{
 //
@@ -219,9 +31,17 @@ static UIImage *newImageWithPixmap(fz_pixmap *pix, CGDataProviderRef cgdata){
 //    });
 //    return tool;
 //}
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.semaphore = dispatch_semaphore_create(1);
+    }
+    return self;
+}
 
 -(NSMutableArray *)flattenOutlineWith:(PagesModel *)pageM{
-
+    
     NSMutableArray *pages = [[NSMutableArray alloc]init];
     fz_outline *outline = pageM.downOutline;
     while (outline) {
@@ -251,118 +71,257 @@ static UIImage *newImageWithPixmap(fz_pixmap *pix, CGDataProviderRef cgdata){
     }
     return pages;
 }
-
--(NSMutableArray *)enumerateWords:(fz_document *)doc withContext:(fz_context *)ctx2 withPageNumber:(int)pageNumber{
+-(void)enumerateWords:(fz_document *)doc withPageNumber:(int)pageNumber withResult:(void (^)(NSArray * results))result{
     
-    fz_page *page = NULL;
-    fz_try(ctx){
-        fz_rect bounds;
-        page = fz_load_page(ctx, doc, pageNumber);
-        fz_bound_page(ctx, page, &bounds);
+    
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+        fz_page *page = NULL;
+        fz_try(ctx){
+            fz_rect bounds;
+            page = fz_load_page(ctx, doc, pageNumber);
+            fz_bound_page(ctx, page, &bounds);
+            
+        }
+        fz_catch(ctx){
+            NSLog(@"%s",ctx->error->message);
+            fz_drop_page(ctx, page);
+            dispatch_semaphore_signal(self.semaphore);
+            result(@[]);
+        }
         
-    }
-    fz_catch(ctx){
-        NSLog(@"%s",ctx->error->message);
-        fz_drop_page(ctx, page);
-        return NULL;
-    }
-    
-    fz_stext_sheet *sheet = NULL;
-    fz_stext_page *text = NULL;
-    fz_device *dev = NULL;
-    NSMutableArray *lns = [NSMutableArray array];
-    NSMutableArray *wds;
-    MuWord *word;
-    
-    if (!lns){
-        fz_drop_page(ctx, page);
-        return NULL;
-    }
-    fz_var(sheet);
-    fz_var(text);
-    fz_var(dev);
-    
-    fz_try(ctx)
-    {
-        fz_rect mediabox;
-        int b, l, c;
+        fz_stext_sheet *sheet = NULL;
+        fz_stext_page *text = NULL;
+        fz_device *dev = NULL;
+        NSMutableArray *lns = [NSMutableArray array];
+        NSMutableArray *wds;
+        MuWord *word;
         
-        sheet = fz_new_stext_sheet(ctx);
-        text = fz_new_stext_page(ctx, fz_bound_page(ctx, page, &mediabox));
-        dev = fz_new_stext_device(ctx, sheet, text, NULL);
-        fz_run_page(ctx, page, dev, &fz_identity, NULL);
-        fz_close_device(ctx, dev);
-        fz_drop_device(ctx, dev);
-        dev = NULL;
+        if (!lns){
+            fz_drop_page(ctx, page);
+            dispatch_semaphore_signal(self.semaphore);
+            result(@[]);
+        }
+        fz_var(sheet);
+        fz_var(text);
+        fz_var(dev);
         
-        for (b = 0; b < text->len; b++)
+        fz_try(ctx)
         {
-            fz_stext_block *block;
+            fz_rect mediabox;
+            int b, l, c;
             
-            if (text->blocks[b].type != FZ_PAGE_BLOCK_TEXT)
-                continue;
+            sheet = fz_new_stext_sheet(ctx);
+            text = fz_new_stext_page(ctx, fz_bound_page(ctx, page, &mediabox));
+            dev = fz_new_stext_device(ctx, sheet, text, NULL);
+            fz_run_page(ctx, page, dev, &fz_identity, NULL);
+            fz_close_device(ctx, dev);
+            fz_drop_device(ctx, dev);
+            dev = NULL;
             
-            block = text->blocks[b].u.text;
-            
-            for (l = 0; l < block->len; l++)
+            for (b = 0; b < text->len; b++)
             {
-                fz_stext_line *line = &block->lines[l];
-                fz_stext_span *span;
+                fz_stext_block *block;
                 
-                wds = [NSMutableArray array];
-                if (!wds)
-                    fz_throw(ctx, FZ_ERROR_GENERIC, "Failed to create word array");
+                if (text->blocks[b].type != FZ_PAGE_BLOCK_TEXT)
+                continue;
                 
-                word = [MuWord word];
-                if (!word)
-                    fz_throw(ctx, FZ_ERROR_GENERIC, "Failed to create word");
+                block = text->blocks[b].u.text;
                 
-                for (span = line->first_span; span; span = span->next)
+                for (l = 0; l < block->len; l++)
                 {
-                    for (c = 0; c < span->len; c++)
+                    fz_stext_line *line = &block->lines[l];
+                    fz_stext_span *span;
+                    
+                    wds = [NSMutableArray array];
+                    if (!wds)
+                    fz_throw(ctx, FZ_ERROR_GENERIC, "Failed to create word array");
+                    
+                    word = [MuWord word];
+                    if (!word)
+                    fz_throw(ctx, FZ_ERROR_GENERIC, "Failed to create word");
+                    
+                    for (span = line->first_span; span; span = span->next)
                     {
-                        fz_stext_char *ch = &span->text[c];
-                        fz_rect bbox;
-                        CGRect rect;
-                        
-                        fz_stext_char_bbox(ctx, &bbox, span, c);
-                        rect = CGRectMake(bbox.x0, bbox.y0, bbox.x1 - bbox.x0, bbox.y1 - bbox.y0);
-                        
-                        if (ch->c != ' ')
+                        for (c = 0; c < span->len; c++)
                         {
-                            [word appendChar:ch->c withRect:rect];
-                        }
-                        else if (word.string.length > 0)
-                        {
-                            [wds addObject:word];
-                            word = [MuWord word];
-                            if (!word)
+                            fz_stext_char *ch = &span->text[c];
+                            fz_rect bbox;
+                            CGRect rect;
+                            
+                            fz_stext_char_bbox(ctx, &bbox, span, c);
+                            rect = CGRectMake(bbox.x0, bbox.y0, bbox.x1 - bbox.x0, bbox.y1 - bbox.y0);
+                            
+                            if (ch->c != ' ')
+                            {
+                                [word appendChar:ch->c withRect:rect];
+                            }
+                            else if (word.string.length > 0)
+                            {
+                                [wds addObject:word];
+                                word = [MuWord word];
+                                if (!word)
                                 fz_throw(ctx, FZ_ERROR_GENERIC, "Failed to create word");
+                            }
                         }
                     }
-                }
-                
-                if (word.string.length > 0)
+                    
+                    if (word.string.length > 0)
                     [wds addObject:word];
-                
-                if (wds.count > 0)
+                    
+                    if (wds.count > 0)
                     [lns addObject:wds];
+                }
             }
+            fz_close_device(ctx, dev);
         }
-        fz_close_device(ctx, dev);
-    }
-    fz_always(ctx)
-    {
-        fz_drop_stext_page(ctx, text);
-        fz_drop_stext_sheet(ctx, sheet);
-        fz_drop_device(ctx, dev);
-        fz_drop_page(ctx, page);
-    }
-    fz_catch(ctx)
-    {
-        lns = NULL;
-    }
+        fz_always(ctx)
+        {
+            fz_drop_stext_page(ctx, text);
+            fz_drop_stext_sheet(ctx, sheet);
+            fz_drop_device(ctx, dev);
+        }
+        fz_catch(ctx)
+        {
+            lns = NULL;
+        }
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            dispatch_semaphore_signal(self.semaphore);
+            result(lns);
+        });
+        
+    });
     
+}
+-(NSMutableArray *)enumerateWords:(fz_document *)doc withContext:(fz_context *)ctx2 withPageNumber:(int)pageNumber{
+    dispatch_semaphore_wait(self.semaphore, DISPATCH_TIME_FOREVER);
+    
+    __block NSMutableArray *lns = [NSMutableArray array];
+    
+    dispatch_semaphore_t tmpSeaphore = dispatch_semaphore_create(0);
+    dispatch_async(dispatch_get_global_queue(0, 0), ^{
+        
+        BOOL isValid = YES;
+        
+        fz_page *page = NULL;
+        fz_try(ctx){
+            fz_rect bounds;
+            page = fz_load_page(ctx, doc, pageNumber);
+            fz_bound_page(ctx, page, &bounds);
+            
+        }
+        fz_catch(ctx){
+            NSLog(@"%s",ctx->error->message);
+            fz_drop_page(ctx, page);
+            ;
+            isValid = NO;
+        }
+        
+        fz_stext_sheet *sheet = NULL;
+        fz_stext_page *text = NULL;
+        fz_device *dev = NULL;
+        //    NSMutableArray *lns = [NSMutableArray array];
+        NSMutableArray *wds;
+        MuWord *word;
+        
+        if (!lns){
+            fz_drop_page(ctx, page);
+            //        return NULL;
+            isValid = NO;
+        }
+        
+        if (isValid) {
+            fz_var(sheet);
+            fz_var(text);
+            fz_var(dev);
+            fz_try(ctx)
+            {
+                fz_rect mediabox;
+                int b, l, c;
+                
+                sheet = fz_new_stext_sheet(ctx);
+                text = fz_new_stext_page(ctx, fz_bound_page(ctx, page, &mediabox));
+                dev = fz_new_stext_device(ctx, sheet, text, NULL);
+                fz_run_page(ctx, page, dev, &fz_identity, NULL);
+                fz_close_device(ctx, dev);
+                fz_drop_device(ctx, dev);
+                dev = NULL;
+                
+                for (b = 0; b < text->len; b++)
+                {
+                    fz_stext_block *block;
+                    
+                    if (text->blocks[b].type != FZ_PAGE_BLOCK_TEXT)
+                    continue;
+                    
+                    block = text->blocks[b].u.text;
+                    
+                    for (l = 0; l < block->len; l++)
+                    {
+                        fz_stext_line *line = &block->lines[l];
+                        fz_stext_span *span;
+                        
+                        wds = [NSMutableArray array];
+                        if (!wds)
+                        fz_throw(ctx, FZ_ERROR_GENERIC, "Failed to create word array");
+                        
+                        word = [MuWord word];
+                        if (!word)
+                        fz_throw(ctx, FZ_ERROR_GENERIC, "Failed to create word");
+                        
+                        for (span = line->first_span; span; span = span->next)
+                        {
+                            for (c = 0; c < span->len; c++)
+                            {
+                                fz_stext_char *ch = &span->text[c];
+                                fz_rect bbox;
+                                CGRect rect;
+                                
+                                fz_stext_char_bbox(ctx, &bbox, span, c);
+                                rect = CGRectMake(bbox.x0, bbox.y0, bbox.x1 - bbox.x0, bbox.y1 - bbox.y0);
+                                
+                                if (ch->c != ' ')
+                                {
+                                    [word appendChar:ch->c withRect:rect];
+                                }
+                                else if (word.string.length > 0)
+                                {
+                                    [wds addObject:word];
+                                    word = [MuWord word];
+                                    if (!word)
+                                    fz_throw(ctx, FZ_ERROR_GENERIC, "Failed to create word");
+                                }
+                            }
+                        }
+                        
+                        if (word.string.length > 0)
+                        [wds addObject:word];
+                        
+                        if (wds.count > 0)
+                        [lns addObject:wds];
+                    }
+                }
+                fz_close_device(ctx, dev);
+            }
+            fz_always(ctx)
+            {
+                fz_drop_stext_page(ctx, text);
+                fz_drop_stext_sheet(ctx, sheet);
+                fz_drop_device(ctx, dev);
+                fz_drop_page(ctx, page);
+            }
+            fz_catch(ctx)
+            {
+                lns = NULL;
+            }
+            dispatch_semaphore_signal(tmpSeaphore);
+            dispatch_semaphore_signal(self.semaphore);
+            
+        }
+    });
+    
+    dispatch_semaphore_wait(tmpSeaphore, DISPATCH_TIME_FOREVER);
     return lns;
 }
 
@@ -391,7 +350,7 @@ static UIImage *newImageWithPixmap(fz_pixmap *pix, CGDataProviderRef cgdata){
 
 -(NSAttributedString *)setAttributeStringFromRange:(NSRange)range inString:(NSString *)inString{
     
-//    截取这个range前后100个字符
+    //    截取这个range前后100个字符
     NSString *newString = nil;
     NSUInteger location = 0;
     NSUInteger length = 150;
@@ -407,6 +366,9 @@ static UIImage *newImageWithPixmap(fz_pixmap *pix, CGDataProviderRef cgdata){
         length = 150;
     }else{
         length = 15 + inString.length - range.location;
+    }
+    if (inString.length < length) {
+        length = inString.length;
     }
     newString = [inString substringWithRange:NSMakeRange(location, length)];
     range = NSMakeRange(newRangeLocation, range.length);
@@ -433,113 +395,6 @@ static UIImage *newImageWithPixmap(fz_pixmap *pix, CGDataProviderRef cgdata){
         }
     }
     return rangeArray;
-}
-
--(UIImage *)loadThumbnailWith:(fz_document *)doc withContext:(fz_context *)ctx2 withPageNumber:(int)pageNumber{
-//    [self clearMemory];
-    return nil;
-        if (pageNumber < 0 || pageNumber >= fz_count_pages(ctx, doc)) {
-            return nil;
-        };
-        [self ensureDisplaylistsWith:doc withContext:ctx withPageNumber:pageNumber];
-
-        CGRect rect = CGRectMake(0, 0, 70, 90);
-        self.image_pix = renderPixmap(doc, self.page_list, self.annot_list, self.pageSize, CGSizeMake(70, 90), rect, 1.0);
-        CGDataProviderRelease(self.imageData);
-        self.imageData = CreateWrappedPixmap(self.image_pix);
-        UIImage *image = [[NSUserDefaults standardUserDefaults]boolForKey:@"switchNight"]?newInvertImageWithPixmap(self.image_pix, self.imageData):newImageWithPixmap(self.image_pix, self.imageData);
-
-        return image;
-//    return nil;
-}
--(void)ensureDisplaylistsWith:(fz_document *)doc withContext:(fz_context *)ctx2 withPageNumber:(int)pageNumber{
-    [self ensurePageloadedWith:doc withContext:ctx withPageNumber:pageNumber];
-    if (!self.page)
-    return;
-    
-    if (!self.page_list)
-    self.page_list = create_page_list(doc, self.page);
-    if (!self.annot_list) {
-        self.annot_list = create_annot_list(doc, self.page);
-    }
-}
-
-- (void)ensurePageloadedWith:(fz_document *)doc withContext:(fz_context *)ctx2 withPageNumber:(int)pageNumber{
-    if (self.page){
-        return;
-    }
-    fz_try(ctx){
-        fz_rect bounds;
-        self.page = fz_load_page(ctx, doc, (int)pageNumber);
-        if (!self.page) {
-            return;
-        }
-        fz_bound_page(ctx, self.page, &bounds);
-        self.pageSize = CGSizeMake(bounds.x1 - bounds.x0 ,bounds.y1 - bounds.y0);
-    }
-    fz_catch(ctx){
-        NSLog(@"%s",ctx->error->message);
-        return;
-    }
-}
-
--(void)clearMemory{
-//    if (![NSThread isMainThread]) {
-//
-//    } else {
-    if (!(_page_list && _annot_list && _page)) {
-        return;
-    }
-        __block fz_display_list *block_page_list = _page_list;
-        __block fz_display_list *block_annot_list =_annot_list;
-        __block fz_page *block_page = _page;
-        //        __block fz_document *block_doc = docRef->doc;
-
-        __block CGDataProviderRef block_imageData = _imageData;
-        dispatch_async(queue, ^{
-            if (block_page_list)
-                fz_drop_display_list(ctx, block_page_list);
-            if (block_annot_list)
-                fz_drop_display_list(ctx, block_annot_list);
-            if (block_page)
-                fz_drop_page(ctx, block_page);
-            block_page = nil;
-            if (block_imageData) {
-                
-                CGDataProviderRelease(block_imageData);
-            }
-        });
-//    }
-}
-
--(void)dealloc{
-    NSLog(@"%s",__func__);
-        if (![NSThread isMainThread]) {
-    
-        } else {
-    if (!(_page_list && _annot_list && _page)) {
-        return;
-    }
-    __block fz_display_list *block_page_list = _page_list;
-    __block fz_display_list *block_annot_list =_annot_list;
-    __block fz_page *block_page = _page;
-    //        __block fz_document *block_doc = docRef->doc;
-    
-    __block CGDataProviderRef block_imageData = _imageData;
-    dispatch_async(queue, ^{
-        if (block_page_list)
-            fz_drop_display_list(ctx, block_page_list);
-        if (block_annot_list)
-            fz_drop_display_list(ctx, block_annot_list);
-        if (block_page)
-            fz_drop_page(ctx, block_page);
-        block_page = nil;
-        if (block_imageData) {
-            
-            CGDataProviderRelease(block_imageData);
-        }
-    });
-        }
 }
 
 @end
