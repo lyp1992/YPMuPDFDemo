@@ -197,6 +197,14 @@
 		994CA2A322CDA46C001138E9 /* DrawView.m in Sources */ = {isa = PBXBuildFile; fileRef = 994CA2A222CDA46C001138E9 /* DrawView.m */; };
 		994CA2A622CDA487001138E9 /* DrawViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 994CA2A522CDA487001138E9 /* DrawViewController.m */; };
 		994CA2A922CDA499001138E9 /* MyPath.m in Sources */ = {isa = PBXBuildFile; fileRef = 994CA2A822CDA499001138E9 /* MyPath.m */; };
+		9952846623042E0A00F0A4B7 /* libmupdf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9952846123042DF300F0A4B7 /* libmupdf.a */; };
+		9952846723042E0A00F0A4B7 /* libmupdf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9952846123042DF300F0A4B7 /* libmupdf.a */; };
+		9952846823042E0A00F0A4B7 /* libmupdfthird.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9952846223042DF300F0A4B7 /* libmupdfthird.a */; };
+		9952846923042E0A00F0A4B7 /* libmupdfthird.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9952846223042DF300F0A4B7 /* libmupdfthird.a */; };
+		9952846A23042E0A00F0A4B7 /* libmupdf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9952846423042E0900F0A4B7 /* libmupdf.a */; };
+		9952846B23042E0A00F0A4B7 /* libmupdf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9952846423042E0900F0A4B7 /* libmupdf.a */; };
+		9952846C23042E0A00F0A4B7 /* libmupdfthird.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9952846523042E0900F0A4B7 /* libmupdfthird.a */; };
+		9952846D23042E0B00F0A4B7 /* libmupdfthird.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9952846523042E0900F0A4B7 /* libmupdfthird.a */; };
 		9957C32C22D42C8000F8341F /* StringEXtension.h in Headers */ = {isa = PBXBuildFile; fileRef = 99673DBF22CB374700EC9ED6 /* StringEXtension.h */; };
 		9957C32D22D42C8500F8341F /* StringEXtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 99673DC022CB374800EC9ED6 /* StringEXtension.m */; };
 		9957C32E22D42C9100F8341F /* PreferencesTool.h in Headers */ = {isa = PBXBuildFile; fileRef = 99673DBC22CB36F400EC9ED6 /* PreferencesTool.h */; };
@@ -212,19 +220,11 @@
 		9957C33822D42CD400F8341F /* PreferencesModel.h in Headers */ = {isa = PBXBuildFile; fileRef = 99673DBA22CB36E100EC9ED6 /* PreferencesModel.h */; };
 		9957C33922D42CD600F8341F /* PreferencesModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 99673DB922CB36E100EC9ED6 /* PreferencesModel.m */; };
 		995B66B622C4BE6600027563 /* MuOutlineController.m in Sources */ = {isa = PBXBuildFile; fileRef = 995B66B522C4BE6600027563 /* MuOutlineController.m */; };
-		995B66BA22C4C71D00027563 /* libmupdf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 995B66B822C4C71C00027563 /* libmupdf.a */; };
-		995B66BB22C4C71D00027563 /* libmupdfthird.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 995B66B922C4C71D00027563 /* libmupdfthird.a */; };
-		995B66BE22C4C72300027563 /* libmupdf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 995B66BC22C4C72200027563 /* libmupdf.a */; };
-		995B66BF22C4C72300027563 /* libmupdfthird.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 995B66BD22C4C72300027563 /* libmupdfthird.a */; };
 		995B66C522C4D09400027563 /* PagesModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 995B66C422C4D09400027563 /* PagesModel.m */; };
 		995B66C822C4DB2E00027563 /* MuPdfPageTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 995B66C722C4DB2E00027563 /* MuPdfPageTool.m */; };
 		99673DBB22CB36E200EC9ED6 /* PreferencesModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 99673DB922CB36E100EC9ED6 /* PreferencesModel.m */; };
 		99673DBE22CB36F500EC9ED6 /* PreferencesTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 99673DBD22CB36F500EC9ED6 /* PreferencesTool.m */; };
 		99673DC122CB374800EC9ED6 /* StringEXtension.m in Sources */ = {isa = PBXBuildFile; fileRef = 99673DC022CB374800EC9ED6 /* StringEXtension.m */; };
-		9991DC1622C7067700A66A74 /* libmupdfthird.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 995B66B922C4C71D00027563 /* libmupdfthird.a */; };
-		9991DC1722C7067900A66A74 /* libmupdf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 995B66B822C4C71C00027563 /* libmupdf.a */; };
-		9991DC1822C7067C00A66A74 /* libmupdf.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 995B66BC22C4C72200027563 /* libmupdf.a */; };
-		9991DC1922C7067E00A66A74 /* libmupdfthird.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 995B66BD22C4C72300027563 /* libmupdfthird.a */; };
 		9991DC1A22C7068200A66A74 /* PagesModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 995B66C422C4D09400027563 /* PagesModel.m */; };
 		9991DC1B22C7068600A66A74 /* PageStringModel.m in Sources */ = {isa = PBXBuildFile; fileRef = 9924447822C62B0100000C34 /* PageStringModel.m */; };
 		9991DC1C22C7068800A66A74 /* MuPdfPageTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 995B66C722C4DB2E00027563 /* MuPdfPageTool.m */; };
@@ -436,6 +436,10 @@
 		994CA2A522CDA487001138E9 /* DrawViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = DrawViewController.m; sourceTree = "<group>"; };
 		994CA2A722CDA499001138E9 /* MyPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MyPath.h; sourceTree = "<group>"; };
 		994CA2A822CDA499001138E9 /* MyPath.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MyPath.m; sourceTree = "<group>"; };
+		9952846123042DF300F0A4B7 /* libmupdf.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmupdf.a; sourceTree = "<group>"; };
+		9952846223042DF300F0A4B7 /* libmupdfthird.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmupdfthird.a; sourceTree = "<group>"; };
+		9952846423042E0900F0A4B7 /* libmupdf.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmupdf.a; sourceTree = "<group>"; };
+		9952846523042E0900F0A4B7 /* libmupdfthird.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmupdfthird.a; sourceTree = "<group>"; };
 		995B665E22C4BA0D00027563 /* html.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = html.h; sourceTree = "<group>"; };
 		995B665F22C4BA0D00027563 /* fitz.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fitz.h; sourceTree = "<group>"; };
 		995B666022C4BA0D00027563 /* pdf-tools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "pdf-tools.h"; sourceTree = "<group>"; };
@@ -517,10 +521,6 @@
 		995B66AF22C4BA0E00027563 /* pdf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pdf.h; sourceTree = "<group>"; };
 		995B66B422C4BE6600027563 /* MuOutlineController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MuOutlineController.h; sourceTree = "<group>"; };
 		995B66B522C4BE6600027563 /* MuOutlineController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MuOutlineController.m; sourceTree = "<group>"; };
-		995B66B822C4C71C00027563 /* libmupdf.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmupdf.a; sourceTree = "<group>"; };
-		995B66B922C4C71D00027563 /* libmupdfthird.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmupdfthird.a; sourceTree = "<group>"; };
-		995B66BC22C4C72200027563 /* libmupdf.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmupdf.a; sourceTree = "<group>"; };
-		995B66BD22C4C72300027563 /* libmupdfthird.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libmupdfthird.a; sourceTree = "<group>"; };
 		995B66C322C4D09400027563 /* PagesModel.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PagesModel.h; sourceTree = "<group>"; };
 		995B66C422C4D09400027563 /* PagesModel.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PagesModel.m; sourceTree = "<group>"; };
 		995B66C622C4DB2E00027563 /* MuPdfPageTool.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MuPdfPageTool.h; sourceTree = "<group>"; };
@@ -564,11 +564,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9991DC1822C7067C00A66A74 /* libmupdf.a in Frameworks */,
-				9991DC1722C7067900A66A74 /* libmupdf.a in Frameworks */,
-				9991DC1622C7067700A66A74 /* libmupdfthird.a in Frameworks */,
+				9952846B23042E0A00F0A4B7 /* libmupdf.a in Frameworks */,
+				9952846723042E0A00F0A4B7 /* libmupdf.a in Frameworks */,
 				6726329A20C6689E00A51622 /* libsqlite3.0.tbd in Frameworks */,
-				9991DC1922C7067E00A66A74 /* libmupdfthird.a in Frameworks */,
+				9952846923042E0A00F0A4B7 /* libmupdfthird.a in Frameworks */,
+				9952846D23042E0B00F0A4B7 /* libmupdfthird.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -584,11 +584,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				995B66BE22C4C72300027563 /* libmupdf.a in Frameworks */,
-				995B66BA22C4C71D00027563 /* libmupdf.a in Frameworks */,
+				9952846A23042E0A00F0A4B7 /* libmupdf.a in Frameworks */,
+				9952846623042E0A00F0A4B7 /* libmupdf.a in Frameworks */,
 				7B8EA97D1F30567C00B931C2 /* libsqlite3.0.tbd in Frameworks */,
-				995B66BB22C4C71D00027563 /* libmupdfthird.a in Frameworks */,
-				995B66BF22C4C72300027563 /* libmupdfthird.a in Frameworks */,
+				9952846823042E0A00F0A4B7 /* libmupdfthird.a in Frameworks */,
+				9952846C23042E0A00F0A4B7 /* libmupdfthird.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -918,28 +918,10 @@
 		7B1F88AF1F01F96600533500 /* lib */ = {
 			isa = PBXGroup;
 			children = (
-				7B1F88B01F01F96600533500 /* debug */,
-				7B1F88B31F01F96600533500 /* release */,
+				9952846323042E0900F0A4B7 /* debug */,
+				9952846023042DF300F0A4B7 /* release */,
 			);
 			path = lib;
-			sourceTree = "<group>";
-		};
-		7B1F88B01F01F96600533500 /* debug */ = {
-			isa = PBXGroup;
-			children = (
-				995B66BC22C4C72200027563 /* libmupdf.a */,
-				995B66BD22C4C72300027563 /* libmupdfthird.a */,
-			);
-			path = debug;
-			sourceTree = "<group>";
-		};
-		7B1F88B31F01F96600533500 /* release */ = {
-			isa = PBXGroup;
-			children = (
-				995B66B822C4C71C00027563 /* libmupdf.a */,
-				995B66B922C4C71D00027563 /* libmupdfthird.a */,
-			);
-			path = release;
 			sourceTree = "<group>";
 		};
 		7B1F88BA1F01F97300533500 /* include */ = {
@@ -1037,6 +1019,24 @@
 				994CA2A822CDA499001138E9 /* MyPath.m */,
 			);
 			path = SignatureTool;
+			sourceTree = "<group>";
+		};
+		9952846023042DF300F0A4B7 /* release */ = {
+			isa = PBXGroup;
+			children = (
+				9952846123042DF300F0A4B7 /* libmupdf.a */,
+				9952846223042DF300F0A4B7 /* libmupdfthird.a */,
+			);
+			path = release;
+			sourceTree = "<group>";
+		};
+		9952846323042E0900F0A4B7 /* debug */ = {
+			isa = PBXGroup;
+			children = (
+				9952846423042E0900F0A4B7 /* libmupdf.a */,
+				9952846523042E0900F0A4B7 /* libmupdfthird.a */,
+			);
+			path = debug;
 			sourceTree = "<group>";
 		};
 		995B665D22C4BA0D00027563 /* mupdf */ = {
@@ -1718,6 +1718,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/EFBMuPdf/lib/release",
 					"$(PROJECT_DIR)/EFBMuPdf/lib/debug",
+					"$(PROJECT_DIR)/YPMuPDF/lib/release",
+					"$(PROJECT_DIR)/YPMuPDF/lib/debug",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = SiniCustomePDFkit;
@@ -1762,6 +1764,8 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)/EFBMuPdf/lib/release",
 					"$(PROJECT_DIR)/EFBMuPdf/lib/debug",
+					"$(PROJECT_DIR)/YPMuPDF/lib/release",
+					"$(PROJECT_DIR)/YPMuPDF/lib/debug",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = SiniCustomePDFkit;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -1942,6 +1946,8 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/YPMuPDF/lib/debug\"",
 					"\"$(SRCROOT)/YPMuPDF/lib/release\"",
+					"$(PROJECT_DIR)/YPMuPDF/lib/release",
+					"$(PROJECT_DIR)/YPMuPDF/lib/debug",
 				);
 				NEW_SETTING = "";
 				ONLY_ACTIVE_ARCH = YES;
@@ -1974,6 +1980,8 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/YPMuPDF/lib/debug\"",
 					"\"$(SRCROOT)/YPMuPDF/lib/release\"",
+					"$(PROJECT_DIR)/YPMuPDF/lib/release",
+					"$(PROJECT_DIR)/YPMuPDF/lib/debug",
 				);
 				NEW_SETTING = "";
 				PRODUCT_BUNDLE_IDENTIFIER = NavchinaEFB.test;
