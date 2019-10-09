@@ -29,6 +29,7 @@
 #import "MUPdfImageTool.h"
 
 #import "MLeaksFinder.h"
+#import <SiniCustomePDFKit/SiniCustomePDFKit.h>
 
 #define KScreenWidth [UIScreen mainScreen].bounds.size.width
 #define KScreenHeight [UIScreen mainScreen].bounds.size.height
@@ -79,6 +80,10 @@ static NSString *const ShareAlertMessage = @"Your changes will not be shared unl
 @property (nonatomic, strong) dispatch_semaphore_t semaphore;
 
 @property (nonatomic, strong) NSOperationQueue *operationQueue;
+
+@property (nonatomic, strong) dispatch_queue_t serialQueue;
+// 记住画笔状态
+@property (nonatomic, assign) BOOL inkStatu;
 
 @end
 
@@ -307,9 +312,9 @@ enum{
    
     // In reflow mode, we need to track pinch gestures on the canvas and pass
     // the scale changes to the subviews.
-    UIPinchGestureRecognizer *pinchRecog = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(onPinch:)];
-    pinchRecog.delegate = self;
-    [self.canvas addGestureRecognizer:pinchRecog];
+//    UIPinchGestureRecognizer *pinchRecog = [[UIPinchGestureRecognizer alloc] initWithTarget:self action:@selector(onPinch:)];
+//    pinchRecog.delegate = self;
+//    [self.canvas addGestureRecognizer:pinchRecog];
 
    self.scale = 1.0;
    self.scroll_animating = NO;
@@ -338,9 +343,15 @@ enum{
     
 //    self.switchNightButton = [self newResourceBasedButton:@"切换试图" withAction:@selector(onSwitchNight:)];
     
+    self.serialQueue = dispatch_queue_create("serialQueue", DISPATCH_QUEUE_SERIAL);
+    
     self.operationQueue = [[NSOperationQueue alloc]init];
     [self.operationQueue setMaxConcurrentOperationCount:1];
-
+    
+    [self setNavBackgroundColor];
+    
+    self.inkStatu = NO;
+    
     [self setView:view];
     
 }
@@ -388,7 +399,7 @@ enum{
 -(void)viewWillLayoutSubviews{
     [super viewWillLayoutSubviews];
     CGSize size = [self.canvas frame].size;
-    int max_width = fz_max(self.width, size.width);
+//    int max_width = fz_max(self.width, size.width);
     
     self.width = size.width;
     self.height = size.height;
@@ -398,8 +409,8 @@ enum{
     [self.canvas setContentOffset: CGPointMake(self.current * self.width, 0)];
     
     // use max_width so we don't clamp the content offset too early during animation
-    [self.canvas setContentSize: CGSizeMake(fz_count_pages(ctx, self.docRef.doc) * max_width, self.height)];
-    [self.canvas setContentOffset: CGPointMake(self.current * self.width, 0)];
+//    [self.canvas setContentSize: CGSizeMake(fz_count_pages(ctx, self.docRef.doc) * max_width, self.height)];
+//    [self.canvas setContentOffset: CGPointMake(self.current * self.width, 0)];
     
     for (UIView<MuPageView> *view in [self.canvas subviews]) {
         if ([view pageNumber] == self.current) {
@@ -434,8 +445,17 @@ enum{
         [[[self navigationController] navigationBar] setAlpha: 1];
         [[[self navigationController] toolbar] setAlpha: 1];
         [self.indicator setAlpha: 1];
-        
+
         [UIView commitAnimations];
+    }
+}
+
+-(void)setNavBackgroundColor{
+    BOOL isNight = [[NSUserDefaults standardUserDefaults]boolForKey:switchNight];
+    if (isNight) {
+        self.navigationController.navigationBar.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.8];
+    }else{
+        self.navigationController.navigationBar.backgroundColor = [UIColor colorWithRed:1.0 green:1.0 blue:1.0 alpha:0.8];
     }
 }
 
@@ -463,6 +483,7 @@ enum{
 }
 
 -(void)refreshData{
+
     [self loadPage];
     
     self.pageCount = fz_count_pages(ctx, self.docRef.doc);
@@ -513,8 +534,8 @@ enum{
 -(UIBarButtonItem *)newResourceBasedButton:(NSString *)resource{
 
     UISwitch *switchBtn = [[UISwitch alloc]init];
-    switchBtn.on = [[NSUserDefaults standardUserDefaults]boolForKey:@"switchNight"];
-    NSLog(@"%d",[[NSUserDefaults standardUserDefaults]boolForKey:@"switchNight"]);
+    switchBtn.on = [[NSUserDefaults standardUserDefaults]boolForKey:switchNight];
+    NSLog(@"%d",[[NSUserDefaults standardUserDefaults]boolForKey:switchNight]);
     [switchBtn addTarget:self action:@selector(onSwitchNight:) forControlEvents:UIControlEventValueChanged];
     
     return [[UIBarButtonItem alloc]initWithCustomView:switchBtn];
@@ -524,11 +545,12 @@ enum{
     if (number < 0 || number >= fz_count_pages(ctx, self.docRef.doc)){
         return;
     }
-    
     int found = 0;
-    for (UIView<MuPageView> *view in [self.canvas subviews])
-        if ([view pageNumber] == number)
+    for (UIView<MuPageView> *view in [self.canvas subviews]){
+        if ([view pageNumber] == number){
             found = 1;
+        }
+    }
     if (self.width == 0 && self.height == 0) {
         CGSize size = [self.canvas frame].size;
         self.width = size.width;
@@ -557,18 +579,23 @@ enum{
                 self.currentRotation = annotsM.rotation;
             }
         }
-
+//        //        查询数据库，取出scale
+//        NSArray *arr = [[PreferencesTool shareAnnotDB]selectPreferencesModelListFromDataBaseWithUUid:self.uuid];
+//        CGFloat scale = 1;
+//        if (arr.count > 0) {
+//            PreferencesModel *model = arr[0];
+//            scale = model.scale;
+//        }
+        
         UIView<MuPageView> *view = [[MuNormalPageView alloc] initWithFrame:rect
                                                                andDocument:self.docRef
                                                              andPageNumber:number
-                                                              andNightMode:self.nightMode andDegree:self.currentRotation andUUId:self.uuid drawAnnots:isDraw andSignatureIndex:self.signatureIndex];
+                                                              andNightMode:self.nightMode andDegree:self.currentRotation andUUId:self.uuid drawAnnots:isDraw andSignatureIndex:self.signatureIndex scale:1];
 
-        [view setScale:self.scale];
+        [view setInkStatus:self.inkStatu];
         [self.canvas addSubview:view];
         
     }
-
-    
 }
 
 -(void)statusBarOrientationChange:(NSNotification *)notification{
@@ -660,7 +687,6 @@ enum{
 
 -(void)onAnnot:(UIButton *)sender{
 
-    self.rotatingBtnView.hidden = YES;
     sender.selected = !sender.selected;
 
     if (sender.selected) {
@@ -718,10 +744,13 @@ enum{
     
     self.nightMode = sender.isOn;
     
-     [[NSUserDefaults standardUserDefaults]setBool:sender.isOn forKey:@"switchNight"];
-//    NSLog(@"switchNight==%d",[[NSUserDefaults standardUserDefaults]boolForKey:@"switchNight"]);
+     [[NSUserDefaults standardUserDefaults]setBool:sender.isOn forKey:switchNight];
+
     [self createPageViewWith:self.current];
     
+    if (_isNeedNav) {
+        [self setNavBackgroundColor];
+    }
 }
 
 - (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
@@ -740,11 +769,11 @@ enum{
 //删除page
 -(void)deleteCurrentPage{
     for (UIView<MuPageView> *view in [self.canvas subviews]) {
-        //        NSLog(@"%@",self.canvas.subviews);
+//                NSLog(@"%@",self.canvas.subviews);
         if ([view pageNumber] == self.current) {
             
             [view removeFromSuperview];
-            //            NSLog(@"%@",self.canvas.subviews);
+//                        NSLog(@"%@",self.canvas.subviews);
         }
     }
 }
@@ -761,6 +790,11 @@ enum{
 
 -(void)rotatingButtonView:(UIView *)rotatingView clickRotatingButton:(UIButton *)rotatingBtn{
     
+    NSArray *arrat = [[PreferencesTool shareAnnotDB]selectPreferencesModelListFromDataBaseWithUUid:self.uuid];
+    if (arrat.count>0) {
+        PreferencesModel *annotsM = arrat[0];
+        self.currentRotation = annotsM.rotation;
+    }
     for (UIView<MuPageView> *view in [self.canvas subviews]) {
         if ([view pageNumber] == self.current) {
             if (self.currentRotation==0) {
@@ -844,6 +878,11 @@ enum{
 }
 - (void) onTap: (UITapGestureRecognizer*)sender
 {
+    
+    BOOL isHidden = [[NSUserDefaults standardUserDefaults]boolForKey:@"HiddenTool"];
+    isHidden = !isHidden;
+    SiniCustomePDFViewcontroller *vc = (SiniCustomePDFViewcontroller *)self.parentViewController;
+    
     self.rotatingBtnView.hidden = NO;
     
     CGPoint p = [sender locationInView: self.canvas];
@@ -855,12 +894,13 @@ enum{
     __block BOOL tapHandled = NO;
     for (UIView<MuPageView> *view in [self.canvas subviews])
     {
-        [view deselectAnnotation];
+//        [view deselectAnnotation];
         CGPoint pp = [sender locationInView:view];
         if (CGRectContainsPoint(view.bounds, pp))
         {
             MuTapResult *result = [view handleTap:pp];
             __block BOOL hitAnnot = NO;
+            __block BOOL hitTool = NO;
             [result switchCaseInternal:^(MuTapResultInternalLink *link) {
 //                [self gotoPage:link.pageNumber animated:NO];
                 tapHandled = YES;
@@ -872,14 +912,18 @@ enum{
                 tapHandled = YES;
             } caseAnnotation:^(MuTapResultAnnotation *annot) {
                 hitAnnot = YES;
+            }caseTool:^(MutapResultTool *tool) {
+                hitTool = YES;
             }];
             
             switch (self.barmode)
             {
                 case BARMODE_ANNOTATION:
-                    if (hitAnnot)
+                    if (hitAnnot){
                         [self deleteModeOn];
+                    }
                     tapHandled = YES;
+                    [vc setHiddenTool:isHidden];
                     break;
                     
                 case BARMODE_DELETE:
@@ -889,12 +933,23 @@ enum{
                     break;
                     
                 default:
+                {
+                  
                     if (hitAnnot)
                     {
                         // Annotation will have been selected, which is wanted
                         // only in annotation-editing mode
+//
+                    }else if (!hitTool){
                         [view deselectAnnotation];
+                      
+                        [vc setHiddenTool:isHidden];
+                    }else{
+                        
+                        [vc setHiddenTool:isHidden];
                     }
+                    
+                }
                     break;
             }
             
@@ -909,34 +964,38 @@ enum{
     } else if (p.x > x1) {
 //        [self gotoPage: current+1 animated: YES];
     } else {
-        if ([[self navigationController] isNavigationBarHidden])
-            [self showNavigationBar];
-        else if (self.barmode == BARMODE_MAIN)
-            [self hideNavigationBar];
+        
+        if (self.isNeedNav) {//需要导航栏
+            if ([[self navigationController] isNavigationBarHidden])
+                [self showNavigationBar];
+            else if (self.barmode == BARMODE_MAIN)
+                [self hideNavigationBar];
+        }
     }
-    
+
 }
-- (void) onPinch:(UIPinchGestureRecognizer*)sender
-{
-    if (sender.state == UIGestureRecognizerStateBegan)
-        sender.scale = self.scale;
-    
-    if (sender.scale < MIN_SCALE)
-        sender.scale = MIN_SCALE;
-    
-    if (sender.scale > MAX_SCALE)
-        sender.scale = MAX_SCALE;
-    if (sender.state == UIGestureRecognizerStateEnded)
-        self.scale = sender.scale;
-    
-    for (UIView<MuPageView> *view in [self.canvas subviews])
-    {
- 
-        if (view.pageNumber == self.current || sender.state == UIGestureRecognizerStateEnded)
-            [view setScale:sender.scale];
-    }
-    
-}
+//- (void) onPinch:(UIPinchGestureRecognizer*)sender
+//{
+//    return;
+//    if (sender.state == UIGestureRecognizerStateBegan)
+//        sender.scale = self.scale;
+//
+//    if (sender.scale < MIN_SCALE)
+//        sender.scale = MIN_SCALE;
+//
+//    if (sender.scale > MAX_SCALE)
+//        sender.scale = MAX_SCALE;
+//    if (sender.state == UIGestureRecognizerStateEnded)
+//        self.scale = sender.scale;
+//
+//    for (UIView<MuPageView> *view in [self.canvas subviews])
+//    {
+//
+//        if (view.pageNumber == self.current || sender.state == UIGestureRecognizerStateEnded)
+//            [view setScale:sender.scale];
+//    }
+//
+//}
 
 - (void) gotoPage: (int)number animated: (BOOL)animated
 {
@@ -1050,7 +1109,6 @@ enum{
     int count = 0;
     MuPdfPageTool *pageTool = [[MuPdfPageTool alloc]init];
     MuPdfImageTool *imageTool = [[MuPdfImageTool alloc]init];
-
     for (int i = index; i < pageNumbers; i++) {
         NSArray *words = [pageTool enumerateWords:self.docRef.doc withContext:ctx withPageNumber:i];
         NSString *wordStr = [[NSString alloc]init];
@@ -1067,6 +1125,7 @@ enum{
         
         if (wordStr && ![wordStr isEqualToString:@" "] && wordStr.length > 0 && isContainWord) {
 
+//            UIImage *image = [pageTool loadThumbnailWith:self.docRef.doc withContext:ctx withPageNumber:i];
             UIImage *image = [imageTool loadThumbnailWith:self.docRef.doc withContext:ctx withPageNumber:i];
 //            对字符串进行处理
             NSArray *rangeArray = [pageTool rangeOfSubString:text inString:wordStr];
@@ -1091,87 +1150,88 @@ enum{
 }
 
 -(void)searchPdfWorfs:(NSString *)text fromIndex:(int)index progress:(void (^)(int, int))progress withResult:(void (^)(NSArray *))result{
-    //    获取页数
-    //    dispatch_async(self.serialQueue, ^{
-    
-    //    取出operations
-    //    NSArray *operations = self.operationQueue.operations;
-    //    int operationIndex = 0;
-    //    NSOperation *operationCurrent;
-    //    for (int i = 0; i<operations.count; i++) {
-    //        operationCurrent = self.operationQueue.operations[i];
-    //        if (operationCurrent.isConcurrent && !operationCurrent.isFinished && i != operations.count - 1) {
-    //            operationIndex = i;
-    //            self.operationQueue.suspended = YES;
-    //            break;
-    //        }
-    //    }
-    ////    取消当前正在进行的s后面所有的操作。
-    //    for (int i = operationIndex ; i< operations.count; i++) {
-    //        NSOperation *unOperation = self.operationQueue.operations[i];
-    //        [unOperation cancel];
-    //    }
-    ////    如果被暂停了，再次启动
-    //    if (self.operationQueue.isSuspended == YES) {
-    //        self.operationQueue.suspended = NO;
-    //    }
-    
+
     [self.operationQueue cancelAllOperations];
     
     NSBlockOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
+/* 让当前u页显示搜索结果**/
         
-        int pageNumbers = fz_count_pages(ctx, self.docRef.doc);
-        NSMutableArray *wordMArr = [NSMutableArray array];
-        int count = 0;
-        
-        for (int i = index; i < pageNumbers; i++) {
-            if (count >= 3) {
-                break;
-            }
-            MuPdfPageTool *pageTool = [[MuPdfPageTool alloc]init];
-            MuPdfImageTool *imageTool = [[MuPdfImageTool alloc]init];
-            NSArray *words = [pageTool enumerateWords:self.docRef.doc withContext:ctx withPageNumber:i];
-            
-            NSString *wordStr = [[NSString alloc]init];
-            for (NSArray *lines in words) {
-                for (MuWord *word in lines) {
-                    NSString *str = [NSString stringWithFormat:@"%@ ",word.string];
-                    wordStr = [wordStr stringByAppendingString:str];
-                }
-            }
-            
-            //        搜索是否包含text文字
-            BOOL isContainWord = [pageTool SearchForTextContainsWord:wordStr withWord:text];
-            
-            if (wordStr && ![wordStr isEqualToString:@" "] && wordStr.length > 0 && isContainWord) {
-                UIImage *image = [imageTool loadThumbnailWith:self.docRef.doc withContext:ctx withPageNumber:i];
-                //            对字符串进行处理
-                NSArray *rangeArray = [pageTool rangeOfSubString:text inString:wordStr];
-                for (NSValue *rgValue in rangeArray) {
-                    PageStringModel *stringModel = [[PageStringModel alloc]init];
-                    stringModel.wordString = wordStr;
-                    stringModel.pageNumber = i;
-                    stringModel.pdfImage = image;
-                    
-                    NSRange range = [rgValue rangeValue];
-                    NSAttributedString *arrtibutrstring = [pageTool setAttributeStringFromRange:range inString:wordStr];
-                    stringModel.attributeString = arrtibutrstring;
-                    [wordMArr addObject:stringModel];
-                }
-                count++;
-            }
+            //             当前页
+            char *needle = strdup(text.UTF8String);
+            int n = search_page(self.docRef.doc, self.current, needle, NULL);
+            if (n) {
             dispatch_async(dispatch_get_main_queue(), ^{
-                progress(pageNumbers,i);
-            });
+                    for (UIView<MuPageView> *view in self.canvas.subviews){
+                        [view showSearchResults:n];
+                    }
+                    free(needle);
+                });
+            }else{
+            dispatch_async(dispatch_get_main_queue(), ^{
+                    for (UIView<MuPageView> *view in self.canvas.subviews){
+                        [view clearSearchResults];
+                    }
+                    free(needle);
+                });
+            }
+      
+        
+     int pageNumbers = fz_count_pages(ctx, self.docRef.doc);
+        
+     NSMutableArray *wordMArr = [NSMutableArray array];
+     int count = 0;
+        
+    if (text.length > 0 && index <= pageNumbers) {
             
-        }
+        
+     for (int i = index; i < pageNumbers; i++) {
+         if (count >= 3) {
+             break;
+         }
+
+         MuPdfPageTool *pageTool = [[MuPdfPageTool alloc]init];
+         MuPdfImageTool *imageTool = [[MuPdfImageTool alloc]init];
+         NSArray *words = [pageTool enumerateWords:self.docRef.doc withContext:ctx withPageNumber:i];
+
+         NSString *wordStr = [[NSString alloc]init];
+         for (NSArray *lines in words) {
+             for (MuWord *word in lines) {
+                 NSString *str = [NSString stringWithFormat:@"%@ ",word.string];
+                 wordStr = [wordStr stringByAppendingString:str];
+             }
+         }
+         
+         //        搜索是否包含text文字
+         BOOL isContainWord = [pageTool SearchForTextContainsWord:wordStr withWord:text];
+         
+         if (wordStr && ![wordStr isEqualToString:@" "] && wordStr.length > 0 && isContainWord) {
+               UIImage *image = [imageTool loadThumbnailWith:self.docRef.doc withContext:ctx withPageNumber:i];
+             //            对字符串进行处理
+             NSArray *rangeArray = [pageTool rangeOfSubString:text inString:wordStr];
+             for (NSValue *rgValue in rangeArray) {
+                 PageStringModel *stringModel = [[PageStringModel alloc]init];
+                 stringModel.wordString = wordStr;
+                 stringModel.pageNumber = i;
+                 stringModel.pdfImage = image;
+                 
+                 NSRange range = [rgValue rangeValue];
+                 NSAttributedString *arrtibutrstring = [pageTool setAttributeStringFromRange:range inString:wordStr];
+                 stringModel.attributeString = arrtibutrstring;
+                 [wordMArr addObject:stringModel];
+             }
+             count++;
+         }
+         dispatch_async(dispatch_get_main_queue(), ^{
+              progress(pageNumbers,i);
+         });
+         
+     }
         dispatch_async(dispatch_get_main_queue(), ^{
             result(wordMArr);
         });
+        }
     }];
     [self.operationQueue addOperation:operation];
-
-
 }
 
 // 前进
@@ -1253,24 +1313,25 @@ enum{
 // 对查询结果进行再分割
 #pragma mark - 画笔
 - (void)inkWithStatus:(BOOL)select{
+    self.inkStatu = select;
     if (select) {
         self.barmode = BARMODE_INK;
         [self inkModeOn];
         self.canvas.scrollEnabled = NO;
     }else{
-        for (UIView<MuPageView> *view in [self.canvas subviews])
-        {
-            if ([view pageNumber] == self.current)
-            {
-                [view saveInk];
-            }
-        }
         //点击删除标注
-        ((UIButton *)self.annotButton.customView).selected = NO;
-        [self onAnnot:self.annotButton.customView];
+        [self showAnnotationMenu];
         [self save];
         self.canvas.scrollEnabled = YES;
+        [self.pageNumArr removeObject:@(self.current)];
+        [self loadPage];
+        [self inkModeOff];
     }
+ 
+}
+//设置个人喜好是否需要连续
+-(void)setContinuouPage:(BOOL)continuous{
+    [[NSUserDefaults standardUserDefaults]setBool:continuous forKey:ContinuousPage];
 }
 #pragma mark - 旋转
 //旋转
@@ -1296,15 +1357,25 @@ enum{
 #pragma mark - 夜视
 //夜视
 - (void)setNight:(BOOL)isNight{
+    
+    [self.pageNumArr removeObject:@(self.current)];
+    
     //移除之前的页面
     [self deleteCurrentPage];
     
     self.nightMode = isNight;
     
-    [[NSUserDefaults standardUserDefaults]setBool:isNight forKey:@"switchNight"];
+    [[NSUserDefaults standardUserDefaults]setBool:isNight forKey:switchNight];
     //    NSLog(@"switchNight==%d",[[NSUserDefaults standardUserDefaults]boolForKey:@"switchNight"]);
     self.view.backgroundColor = self.nightMode?[UIColor blackColor]:[UIColor whiteColor];
     [self createPageViewWith:self.current];
+    
+    if (self.inkStatu) {
+        self.barmode = BARMODE_INK;
+        [self inkModeOn];
+    }
+   
+    
 }
 #pragma mark - 保存： 标注 + 文档
 - (void)save{

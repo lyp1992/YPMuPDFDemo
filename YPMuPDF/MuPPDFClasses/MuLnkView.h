@@ -21,5 +21,6 @@
 -(void)redo;
 -(void)undo;
 -(void)clearMemory;
+-(void)curvesRemoveAll;
 
 @end

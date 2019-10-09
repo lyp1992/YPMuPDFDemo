@@ -48,6 +48,8 @@ enum
 
 @property (nonatomic, strong) UIViewController *parentViewController;
 
+//是否需要导航栏
+@property (nonatomic, assign) BOOL isNeedNav;
 
 -(instancetype)initWith:(NSString *)filePath
             andDocument:(MuDocRef *)docRef
@@ -91,5 +93,8 @@ enum
 -(void)signature;
 -(void)reSignature;
 -(void)showSignatureWithIndex:(int)Index;
+
+//设置个人喜好是否需要连续
+-(void)setContinuouPage:(BOOL)continuous;
 
 @end

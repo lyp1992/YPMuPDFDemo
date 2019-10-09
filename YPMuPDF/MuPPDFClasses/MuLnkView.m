@@ -153,7 +153,9 @@
     [self setNeedsDisplay];
 }
 
-
+-(void)curvesRemoveAll{
+    [curves removeAllObjects];
+}
 -(void)clearMemory{
     [self.memoryCursArr removeAllObjects];
 }

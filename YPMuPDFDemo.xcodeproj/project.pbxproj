@@ -1363,8 +1363,8 @@
 					};
 					7B1F877D1F01F52B00533500 = {
 						CreatedOnToolsVersion = 8.3.2;
-						DevelopmentTeam = V762XE89AY;
-						ProvisioningStyle = Manual;
+						DevelopmentTeam = DN43523GZM;
+						ProvisioningStyle = Automatic;
 					};
 					7B1F87961F01F52B00533500 = {
 						CreatedOnToolsVersion = 8.3.2;
@@ -1930,11 +1930,11 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = V762XE89AY;
+				DEVELOPMENT_TEAM = DN43523GZM;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_INPUT_FILETYPE = automatic;
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/YPMuPDF/include\"";
@@ -1951,10 +1951,10 @@
 				);
 				NEW_SETTING = "";
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = NavchinaEFB.test;
+				PRODUCT_BUNDLE_IDENTIFIER = "animal.-";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "d327607f-eea4-451c-9909-12033a1306b7";
-				PROVISIONING_PROFILE_SPECIFIER = NavchinaEFB.Test_dev;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				VALID_ARCHS = arm64;
 			};
 			name = Debug;
@@ -1964,11 +1964,11 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = V762XE89AY;
+				DEVELOPMENT_TEAM = DN43523GZM;
 				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_INPUT_FILETYPE = automatic;
 				HEADER_SEARCH_PATHS = "\"$(SRCROOT)/YPMuPDF/include\"";
@@ -1984,10 +1984,10 @@
 					"$(PROJECT_DIR)/YPMuPDF/lib/debug",
 				);
 				NEW_SETTING = "";
-				PRODUCT_BUNDLE_IDENTIFIER = NavchinaEFB.test;
+				PRODUCT_BUNDLE_IDENTIFIER = "animal.-";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "fac34303-a902-4378-a1c5-cf512b26bc9e";
-				PROVISIONING_PROFILE_SPECIFIER = NavchinaEFBTest_inhouse;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				VALID_ARCHS = arm64;
 			};
 			name = Release;

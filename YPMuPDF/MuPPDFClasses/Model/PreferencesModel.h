@@ -17,4 +17,7 @@
 
 @property (nonatomic, assign) BOOL signature;//是否有签名
 
+@property (nonatomic, assign) CGFloat scale;//缩小倍数
+
+
 @end

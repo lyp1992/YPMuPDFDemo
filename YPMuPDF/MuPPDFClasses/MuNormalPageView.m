@@ -17,6 +17,7 @@
 #import "StringEXtension.h"
 #import "PreferencesTool.h"
 #import "PreferencesModel.h"
+#import "MuHitView.h"
 
 
 #define STRIKE_HEIGHT (0.375f)
@@ -25,7 +26,7 @@
 #define INK_THICKNESS (4.0f)
 
 @interface MuNormalPageView()<ToolViewDelegate>{
-    
+    MuHitView *hitView;
 }
 
 @property(nonatomic,assign) fz_page *page;
@@ -64,7 +65,7 @@
 
 @property(nonatomic, strong) MuLnkView *inkView;
 
-@property(nonatomic, strong) NSArray *annotations;
+@property(nonatomic, strong) NSMutableArray *annotations;
 @property(nonatomic, assign) int selectedAnnotationIndex;
 
 @property(nonatomic, strong) MuAnnotSelectView *annotSelectView;
@@ -99,6 +100,12 @@
 @property (nonatomic, strong) PreferencesModel *preferModel;
 
 @property (nonatomic, assign) int signatureIndex;
+
+@property (nonatomic, assign) CGFloat scale;
+
+@property (nonatomic, strong) NSOperationQueue *anonationQueue;
+
+@property (nonatomic, assign) int searchCount;
 
 @end
 
@@ -358,11 +365,12 @@ static void deleteAnnotation(fz_document *doc, fz_page *page, int index)
     {
         int i;
         fz_annot *annot = fz_first_annot(ctx, page);
-        for (i = 0; i < index && annot; i++)
+        for (i = 0; i < index && annot; i++){
             annot = fz_next_annot(ctx, annot);
-        
-        if (annot)
+        }
+        if (annot){
             pdf_delete_annot(ctx, (pdf_page *)page, (pdf_annot *)annot);
+        }
     }
     fz_catch(ctx)
     {
@@ -508,9 +516,12 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
 -(instancetype)initWithFrame:(CGRect)frame
                  andDocument:(MuDocRef *)docRef
                andPageNumber:(NSInteger)pageNumber
-                andNightMode:(BOOL)nightMode andDegree:(CGFloat)degree andUUId:(NSString *)uuid drawAnnots:(BOOL)isDraw andSignatureIndex:(int)signaIndex{
+                andNightMode:(BOOL)nightMode andDegree:(CGFloat)degree andUUId:(NSString *)uuid drawAnnots:(BOOL)isDraw andSignatureIndex:(int)signaIndex scale:(CGFloat)scale{
     self = [super initWithFrame:frame];
     if (self) {
+        
+        self.searchCount = 0;
+        
         //设置基本属性
         self.minimumZoomScale = 1.0;
         self.maximumZoomScale = 5.0;
@@ -519,15 +530,13 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
         [self setShowsHorizontalScrollIndicator: NO];
         self.docRef = docRef;
         self.pageNumber = pageNumber;
-        self.nightMode = nightMode;
+        self.nightMode = [[NSUserDefaults standardUserDefaults]boolForKey:switchNight];
         self.uuid = uuid;
         self.signatureIndex = signaIndex;
-        
+     
         self.delegate = self;
         
-        [self setBouncesZoom: NO];
-        [self resetZoomAnimated: NO];
-        
+
         self.selectedAnnotationIndex = -1;
         self.isSaveForSql = NO;
         self.isCopy = NO;
@@ -536,12 +545,8 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
         self.loadingView = [[UIActivityIndicatorView alloc]initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
         [self.loadingView startAnimating];
         [self addSubview:self.loadingView];
-    
-        self.transform = CGAffineTransformMakeRotation(degree);
-        if (degree>0) {
-            self.bounds = CGRectMake(0, 0, self.bounds.size.height, self.bounds.size.width);
-        }
-        self.degree = degree;
+
+        [self setDefaultRotaionView];
 //        创建一个group组
         self.group = dispatch_group_create();
 //        查找数据库，把数据库中对应这个pdf绘制的值拿出来绘制
@@ -549,8 +554,9 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
 //        绘制pdf
         [self drawAnnotPdfWith:annoMs drawAnonts:isDraw];
         
-        //注册通知。改变frame
-        [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(layoutImageView:) name:rotationView object:nil];
+        //        [self setBouncesZoom: NO];
+        [self resetZoomAnimated: NO];
+
 
         //监听屏幕自动旋转
         [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(statusBarOrientationChange:) name:UIApplicationDidChangeStatusBarOrientationNotification object:nil];
@@ -560,10 +566,29 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
 
         self.toolView.delegate = self;
         
+        self.anonationQueue = [[NSOperationQueue alloc]init];
     }
     return self;
 }
 
+//
+-(void)setDefaultRotaionView{
+    NSArray *arr = [[PreferencesTool shareAnnotDB]selectPreferencesModelListFromDataBaseWithUUid:self.uuid];
+    int pageNum = (int)self.pageNumber;
+    if (arr.count > 0) {
+        PreferencesModel *model = arr[0];
+        pageNum = model.pageNumber;
+        self.degree = model.rotation;
+    }
+    BOOL isContinuous = [[NSUserDefaults standardUserDefaults]boolForKey:ContinuousPage];
+    if (self.pageNumber == pageNum || isContinuous) {
+        self.transform = CGAffineTransformMakeRotation(self.degree);
+        if (self.degree>0) {
+            
+            self.bounds = CGRectMake(0, 0, self.bounds.size.height, self.bounds.size.width);
+        }
+    }
+}
 
 -(void)layoutSubviews{
     
@@ -571,6 +596,7 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
     
     CGSize boundsSize = self.bounds.size;
     CGRect frameToCenter = self.imgView.frame;
+    
     // center horizontally
     if (frameToCenter.size.width < boundsSize.width)
         frameToCenter.origin.x = floor((boundsSize.width - frameToCenter.size.width) / 2);
@@ -610,10 +636,6 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
     [super removeFromSuperview];
 }
 
--(void)setScale:(float)scale{
-    
-}
-
 -(void)willRotate{
     
     if (self.imgView) {
@@ -639,12 +661,8 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
     self.transform = CGAffineTransformMakeRotation(degree);
     self.bounds = CGRectMake(0, 0, self.bounds.size.height, self.bounds.size.width);
     self.degree = degree;
-    [self resetZoomAnimated:NO];
-    [self resizeImage];
-    if (!self.toolView.hidden) {
-        [self resizeAnnot];
-    }
     
+
 //    更改数据库中，当前pdf的旋转方式
 //    查询是否有值
    NSArray *array = [[PreferencesTool shareAnnotDB]selectPreferencesModelListFromDataBaseWithUUid:self.uuid];
@@ -656,21 +674,14 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
         model.rotation = degree;
         [[PreferencesTool shareAnnotDB]insertIntoDataBaseWithModel:model];
     }
-    
+
+    [self resetZoomAnimated:NO];
+    [self resizeImage];
+    if (!self.toolView.hidden) {
+        [self resizeAnnot];
+    }
 }
--(void)layoutImageView:(NSNotification *)notifi{
-    
-//    int i = [notifi.userInfo[@"clickNumber"] intValue];
-//    //    NSLog(@"i===%d",i);
-//    self.transform = CGAffineTransformMakeRotation(i * M_PI/2);
-//    self.bounds = CGRectMake(0, 0, self.bounds.size.height, self.bounds.size.width);
-//
-//    [self resetZoomAnimated:NO];
-//    [self resizeImage];
-//    if (!self.toolView.hidden) {
-//        [self resizeAnnot];
-//    }
-}
+
 #pragma -mark 私有的实例方法
 
 -(void)statusBarOrientationChange:(NSNotification *)notification{
@@ -683,10 +694,10 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
 {
     if (self.pageNumber < 0 || self.pageNumber >= fz_count_pages(ctx, self.docRef.doc))
         return;
-    
+    [self.annotations removeAllObjects];
     NSArray *annots = enumerateAnnotations(self.docRef.doc, self.page);
     dispatch_async(dispatch_get_main_queue(), ^{
-        self.annotations = annots;
+        self.annotations = [NSMutableArray arrayWithArray:annots];
     });
 }
 
@@ -732,8 +743,13 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
         self.imgView.opaque = YES;
         [self addSubview: self.imgView];
 
-        if (self.inkView)
+        if (self.inkView){
+            [self.inkView setFrame:self.imgView.frame];
+            if (![self.subviews containsObject:self.inkView]) {
+                [self addSubview:self.inkView];
+            }
             [self bringSubviewToFront:self.inkView];
+        }
         if (self.annotSelectView)
             [self bringSubviewToFront:self.annotSelectView];
     }else{
@@ -745,8 +761,9 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
 {
     if (self.imgView) {
         CGSize imageSize = self.imgView.image.size;
-        CGSize scale = fitPageToScreen(imageSize, self.bounds.size);
-        //        NSLog(@"imageSize==%@,scale==%@",NSStringFromCGSize(imageSize),NSStringFromCGSize(scale));
+        
+        CGSize scale = fitPageToScreen(imageSize, self.bounds.size) ;
+//        NSLog(@"***imageSize==%@,scale==%@",NSStringFromCGSize(imageSize),NSStringFromCGSize(scale));
         
         if (fabs(scale.width - 1) > 0.1) {
             CGRect frame = [self.imgView frame];
@@ -770,6 +787,22 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
         
         [self setContentSize: self.imgView.frame.size];
         
+//        查询偏好设置数据库
+        //        查询数据库，取出scale
+        NSArray *arr = [[PreferencesTool shareAnnotDB]selectPreferencesModelListFromDataBaseWithUUid:self.uuid];
+        CGFloat imgScale = 1;
+        int pageNum = (int)self.pageNumber;
+        if (arr.count > 0) {
+            PreferencesModel *model = arr[0];
+            imgScale = model.scale;
+            pageNum = model.pageNumber;
+        }
+        BOOL isContinuous = [[NSUserDefaults standardUserDefaults]boolForKey:ContinuousPage];
+        
+        if (pageNum == self.pageNumber || isContinuous) { //只放大本页 或者是否连续
+            [self setZoomScale:imgScale animated:NO];
+        }
+
         [self layoutIfNeeded];
     }
 
@@ -810,19 +843,16 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
 }
 
 -(void)loadTile{
-    
- 
 
     CGSize screenSize = self.bounds.size;
     self.tileFrame = CGRectMake(self.contentOffset.x, self.contentOffset.y, screenSize.width, screenSize.height);
     self.tileFrame = CGRectIntersection(self.tileFrame, self.imgView.frame);
     self.tileScale = self.zoomScale;
-    float scale = self.tileScale;
+    CGFloat scale = self.tileScale;
    
     CGRect frame = self.tileFrame;
     CGRect viewFrame = frame;
-//    CGRect viewFrame = CGRectMake(frame.origin.x, frame.origin.y, frame.size.width *scale, frame.size.height *scale);
-    
+
     // Adjust viewFrame to be relative to imageView's origin
     viewFrame.origin.x -= self.imgView.frame.origin.x;
     viewFrame.origin.y -= self.imgView.frame.origin.y;
@@ -853,6 +883,7 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
             if (isValid) {
                 if (self.tileView) {
                     [self.tileView removeFromSuperview];
+                    self.tileView = nil;
                 }
                 
                 self.tileView = [[UIImageView alloc] initWithFrame: frame];
@@ -869,20 +900,32 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
     });
 }
 
+- (void)setInkStatus:(BOOL)inkStatus{
+    if (inkStatus) {
+        if (!self.inkView) {
+            [self inkModeOn];
+        }
+    }else{
+        [self inkModeOff];
+    }
+}
 -(void)inkModeOn{
-    
+    if (self.inkView) {
+        [self inkModeOff];
+    }
+
     self.inkView = [[MuLnkView alloc]initWithPageSize:self.pageSize];
     if (self.imgView) {
         
         [self.inkView setFrame:self.imgView.frame];
+        [self addSubview:self.inkView];
     }
-    [self addSubview:self.inkView];
-    
 }
 -(void)inkModeOff{
-    
+
+    [self.inkView curvesRemoveAll];
     [self.inkView removeFromSuperview];
-    
+    self.inkView = nil;
 }
 
 -(void)saveInk{
@@ -892,14 +935,16 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
     if (curves.count == 0) {
         return;
     }
+    __weak typeof(self) weakSelf = self;
     dispatch_async(queue, ^{
 
         addInkAnnot(self.docRef.doc, self.page, curves);
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self update];
+            [weakSelf update];
+            [weakSelf.inkView curvesRemoveAll];
         });
 
-        [self loadAnnotations];
+        [weakSelf loadAnnotations];
     });
 }
 
@@ -908,15 +953,31 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
     [self saveAnnotsModelWithSql];
     
 }
-
+-(void)removeOldAnnots{
+    if (self.pageNumber < 0 || self.pageNumber >= fz_count_pages(ctx, self.docRef.doc))
+        return;
+    NSArray *annots = enumerateAnnotations(self.docRef.doc, self.page);
+    for (int i = 0; i < annots.count; i++) {
+        deleteAnnotation(self.docRef.doc, self.page, i);
+    }
+}
 -(void)drawAnnotPdfWith:(NSArray *)annotsM drawAnonts:(BOOL)isDraw{
     //显示image
     [self loadPage];
-
+    
         if (!isDraw) {
             return;
         }
-     for (int i = 0; i<annotsM.count; i++) {
+//    删除之前的annot
+    NSArray *annots = enumerateAnnotations(self.docRef.doc, self.page);
+
+    int start = 0;
+    if (annots.count < annotsM.count) {
+        start = annots.count == 0 ? 0 : (int)annots.count;
+    }else if(annots.count != 0 && annots.count == annotsM.count){
+        return;
+    }
+     for (int i = start; i<annotsM.count; i++) {
         AnnotsModel *annotM = annotsM[i];
         if (annotM.pageIndex != self.pageNumber) {
             break;
@@ -958,6 +1019,9 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
 }
 -(void)saveAnnotsModelWithSql{
 
+    NSBlockOperation *blockOperation = [NSBlockOperation blockOperationWithBlock:^{
+        
+
     //保存curves
     //获取时间戳作为key
     AnnotsModel *annotsM = [AnnotsModel new];
@@ -966,21 +1030,24 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
     annotsM.key = [NSString stringWithFormat:@"%f",[[NSDate date] timeIntervalSince1970] *1000];
     annotsM.currentRotation = self.degree;
     //    归档放进去
-    NSData *arrArchData = [NSKeyedArchiver archivedDataWithRootObject:self.inkView.curves];
+
+    NSMutableArray *muLastCurves = [NSMutableArray arrayWithObject: self.inkView.curves.lastObject];
+    NSData *arrArchData = [NSKeyedArchiver archivedDataWithRootObject:muLastCurves];
     annotsM.curvesData = arrArchData;
 
     //计算框的大小
     CGPoint point;
     CGRect annotRect;
     CGFloat maxX = 0.0,maxY = 0.0,minX = 0.0,minY = 0.0;
-    for (int i = 0; i<self.inkView.curves.count; i++) {
-        NSArray *arr = self.inkView.curves[i];
-        for (int j = 0; j<arr.count-1; j++) {
-            point = [arr[j] CGPointValue];
-            maxX = point.x;
-            maxY = point.y;
-            minX = point.x;
-            minY = point.y;
+//    for (int i = 0; i<self.inkView.curves.count; i++) {
+//        NSArray *arr = self.inkView.curves[i];
+    NSArray *arr = self.inkView.curves.lastObject;
+        point = [arr[0] CGPointValue];
+        maxX = point.x;
+        maxY = point.y;
+        minX = point.x;
+        minY = point.y;
+//        for (int j = 0; j<arr.count-1; j++) {
             for (int m = 1; m<arr.count-1; m++) {
                 point = [arr[m] CGPointValue];
                 if (point.x >maxX) {
@@ -996,21 +1063,25 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
                     minY = point.y;
                 }
             }
-        }
-    }
+//        }
+//    }
     annotRect = CGRectMake(minX, minY, maxX - minX, maxY -minY);
     annotsM.annotRect = [NSString stringWithFormat:@"%@",NSStringFromCGRect(annotRect)];
-    annotsM.firstPoint = [NSString stringWithFormat:@"%@",self.inkView.curves.firstObject];
-    annotsM.lastPoint = [NSString stringWithFormat:@"%@",self.inkView.curves.lastObject];
-    if ([StringEXtension isBlankString:annotsM.annotRect] || [StringEXtension isBlankString:annotsM.firstPoint] || [StringEXtension isBlankString:annotsM.lastPoint]) {
-        return;
+    if ([StringEXtension isBlankString:annotsM.annotRect]) {
+//        return;
+        
     }
+
     [[FmdbTool shareAnnotDB]insertIntoDataBaseWithModel:annotsM];
 
-    self.isSaveForSql = NO;
-    self.isCopy = NO;
-    
+    dispatch_async(dispatch_get_main_queue(), ^{
+            self.isSaveForSql = NO;
+            self.isCopy = NO;
+    });
 
+    }];
+
+    [self.anonationQueue addOperation:blockOperation];
 }
 
 -(void) selectAnnotation:(int)i
@@ -1068,6 +1139,30 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
     //计算偏移值
     CGFloat widthX = ipt.x - annotPoint.x;
     CGFloat heightY = ipt.y - annotPoint.y;
+    
+    CGFloat boundX = 0;
+    CGFloat boundY = 0;
+    NSLog(@"====%@",NSStringFromCGRect(self.imgView.frame));
+    //    判断是否会出界
+    if (widthX > 0) {
+        boundX = self.imgView.frame.size.width - (ipt.x + annotRect.size.width/2);
+    }else{
+        boundX = ipt.x - annotRect.size.width/2 - 15;
+    }
+    if (heightY > 0) {
+        boundY = self.imgView.frame.size.height - (ipt.y + annotRect.size.height/2);
+    }else{
+        boundY = ipt.y - 100 - annotRect.size.height/2;
+    }
+
+    
+    if (boundX < 0) {
+        widthX = widthX > 0 ? (widthX + boundX):(widthX - boundX);
+    }
+    if (boundY < 0) {
+        heightY = heightY > 0 ? (heightY + boundY):(heightY - boundY);
+    }
+  
     //计算所有的偏移坐标
     NSMutableArray *curvesNew = [NSMutableArray array];
     for (int i = 0; i<curves.count; i++) {
@@ -1077,6 +1172,7 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
             CGPoint point = [pointArr[j] CGPointValue];
             point.x = point.x + widthX;
             point.y = point.y + heightY;
+
             [pointM addObject:[NSValue valueWithCGPoint:point]];
         }
         [curvesNew addObject:pointM];
@@ -1093,10 +1189,9 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
         if (index >= 0) {
             //删除原来的
             deleteAnnotation(self.docRef.doc, self.page, index);
-            //更新数据库中这一条数据的值curvesData，和annotRect
-//            [[FmdbTool shareAnnotDB]updateDataBaseWithModel:self.annotModel withCurvesData:curvesData WithAnnotRect:annotRectStr];
+            //更新数据库中这一条数据的值curvesData，和
             [[FmdbTool shareAnnotDB]deleteDataBaseWithAnnotModel:self.annotModel];//删除旧的
-            
+        
             AnnotsModel *anoM = [AnnotsModel new];
             anoM.pageIndex = self.annotModel.pageIndex;
             anoM.annotRect = annotRectStr;
@@ -1111,9 +1206,8 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
         addInkAnnot(self.docRef.doc, self.page, curvesNew);
         dispatch_async(dispatch_get_main_queue(), ^{
             [self update];
+             [self loadAnnotations];
         });
-        
-        [self loadAnnotations];
     });
      [self deselectAnnotation];
 }
@@ -1171,6 +1265,7 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
 {
         if (!decelerate)
             [self loadTile];
+    
         if (!self.toolView.hidden) {
             [self resizeAnnot];
         }
@@ -1179,6 +1274,7 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
 - (void) scrollViewWillBeginZooming: (UIScrollView*)scrollView withView: (UIView*)view
 {
     // discard tile and any pending tile jobs
+
     self.tileFrame = CGRectZero;
     self.tileScale = 1;
     if (self.tileView) {
@@ -1190,14 +1286,42 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
     
 }
 
+static bool modelIsExist;
 - (void) scrollViewDidEndZooming: (UIScrollView*)scrollView withView: (UIView*)view atScale: (CGFloat)scale
 {
     
-    [self loadTile];
+    [self showSearchResults:self.searchCount];
+    NSBlockOperation *blockOperation = [NSBlockOperation blockOperationWithBlock:^{
+
     //记录当前scale
-    NSDictionary *scaleDic = [NSDictionary dictionaryWithObjectsAndKeys:@(scale),@"scale",@(self.pageNumber),@"pageNumber", nil];
-    [[NSUserDefaults standardUserDefaults]setObject:scaleDic forKey:@"scale"];
-  
+    PreferencesTool *prefercesTool = [PreferencesTool shareAnnotDB];
+    PreferencesModel *model = [PreferencesModel new];
+    if (modelIsExist) {
+      NSArray *arr = [prefercesTool selectPreferencesModelListFromDataBaseWithUUid:self.uuid];
+        if (arr.count > 0) {
+            modelIsExist = YES;
+            PreferencesModel *oldModel = arr[0];
+            model = oldModel;
+            model.scale = scale;
+//            更新数据库
+            NSString *sql = [NSString stringWithFormat:@"update PreferencesModel SET scale = '%@' where uuid ='%@' ",[NSNumber numberWithFloat:scale],self.uuid];
+            [prefercesTool updateDBWithSql:sql];
+        }else{
+            modelIsExist = NO;
+        }
+    }else{
+//        往数据库中插入一条新数据
+        model.uuid = self.uuid;
+        model.scale = scale;
+        model.pageNumber = (int)self.pageNumber;
+
+//        插入数据库
+        [prefercesTool insertIntoDataBaseWithModel:model];
+    }
+        
+    }];
+    [self loadTile];
+    [self.anonationQueue addOperation:blockOperation];
 }
 
 - (void) scrollViewDidZoom: (UIScrollView*)scrollView
@@ -1217,10 +1341,39 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
         if (self.annotSelectView)
 
             [self.annotSelectView setFrame:frm];
+        
+
+        [self showSearchResults:self.searchCount];
+        
     }
-    
+ 
 }
 
+- (void) showSearchResults: (int)count
+{
+    self.searchCount = count;
+  
+    if (hitView) {
+        [hitView removeFromSuperview];
+        hitView = nil;
+    }
+    if (!(count > 0)) {
+        return;
+    }
+    hitView = [[MuHitView alloc] initWithSearchResults: count forDocument: self.docRef.doc];
+    if (self.imgView) {
+        hitView.frame = self.imgView.frame;
+        [hitView setPageSize: self.pageSize];
+    }
+    [self addSubview: hitView];
+}
+- (void) clearSearchResults
+{
+    if (hitView) {
+        [hitView removeFromSuperview];
+        hitView = nil;
+    }
+}
 -(void)resetZoomAnimated:(BOOL)animated{
     
     self.tileFrame = CGRectZero;
@@ -1232,6 +1385,7 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
     }
     [self setMinimumZoomScale:1];
     [self setMaximumZoomScale:5];
+
     [self setZoomScale:1 animated:animated];
     
 }
@@ -1248,14 +1402,10 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
         dispatch_async(dispatch_get_main_queue(), ^{
             BOOL isValid = CGRectEqualToRect(tframe, self.tileFrame) && tscale == self.tileScale;
             if (isValid)
-//                                [self.tileView setImage:timage];
-            
+      
 //                发送重新加载界面的通知
                 [[NSNotificationCenter defaultCenter]postNotificationName:reloadThePage object:nil];
-//            if (self.isSaveForSql) {
-//                //保存到数据库
-//                [self saveAnnotsModelWithSql];
-//            }
+
         });
     }
     CGSize fscale = fitPageToScreen(self.pageSize, self.bounds.size);
@@ -1267,10 +1417,6 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
         
         //发送重新加载界面的通知
         [[NSNotificationCenter defaultCenter]postNotificationName:reloadThePage object:nil];
-//        if (self.isSaveForSql) {
-//            //保存到数据库
-//            [self saveAnnotsModelWithSql];
-//        }
     });
 }
 
@@ -1290,6 +1436,7 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
 - (MuTapResult *) handleTap:(CGPoint)pt
 {
     //记录当前点击的annot
+
     self.handleTapPoint = pt;
     
     CGPoint ipt = [self convertPoint:pt toView:self.imgView];
@@ -1302,9 +1449,11 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
     for (i = 0; i < self.annotations.count; i++)
     {
         MuAnnotation *annot = [self.annotations objectAtIndex:i];
+
         //选中已经画好
         if (annot.type != PDF_ANNOT_WIDGET && CGRectContainsPoint(annot.rect, ipt))
         {
+//            NSLog(@"annot.rect=== %@",NSStringFromCGRect(annot.rect));
             [self selectAnnotation:i];
             return [[MuTapResultAnnotation alloc] initWithAnnotation:annot];
         }else{//选中空白区域
@@ -1315,6 +1464,7 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
                 [self drawAnnotsWithPoint];
                 return nil;
             }
+
         }
     }
     
@@ -1340,11 +1490,15 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
     CGRect rect = [self.imgView convertRect:CGRectMake(annot.rect.origin.x * scale.width, annot.rect.origin.y*scale.height, annot.rect.size.width*scale.width, annot.rect.size.height*scale.height) toView:[UIApplication sharedApplication].keyWindow];
      
     //转换坐标
-    [self.toolView setFrame:CGRectMake(rect.origin.x - 50, rect.origin.y - 50, rect.size.width + 50, rect.size.height + 50)];
+    [self.toolView setFrame:CGRectMake(rect.origin.x - 65, rect.origin.y - 50, rect.size.width + 130, rect.size.height + 100)];
 
 }
 
 -(void)dealloc{
+    
+    if (self.anonationQueue) {
+        [self.anonationQueue cancelAllOperations];
+    }
     
     [[NSNotificationCenter defaultCenter]removeObserver:self];
     [self.toolView removeFromSuperview];
@@ -1355,7 +1509,7 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
         __block fz_display_list *block_page_list = _page_list;
         __block fz_display_list *block_annot_list =_annot_list;
         __block fz_page *block_page = _page;
-        //		__block fz_document *block_doc = docRef->doc;
+        //        __block fz_document *block_doc = docRef->doc;
         __block CGDataProviderRef block_tileData = _tileData;
         __block CGDataProviderRef block_imageData = _imageData;
         dispatch_async(queue, ^{
@@ -1382,20 +1536,22 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
 
 #pragma mark -- ToolViewDelegate
 -(void)toolView:(ToolView *)view withDeleteAnnot:(UIButton *)sender{
-  
-    [self deleteSelectedAnnotation];
+    
+   [self deleteSelectedAnnotation];
+
     //删除数据库中的这一条
     [self searchAnnotModelFromDataBase:YES];
-    
+   
     [self setNeedsDisplay];
     
 }
 
 -(void)toolView:(ToolView *)view withCopyAnnot:(UIButton *)sender{
-    
-//    NSLog(@"点击了空白位置selectedAnnotationIndex==%d",self.selectedAnnotationIndex);
+
     //mupdf删除的时候是点击的是哪个利用containPoint来区分。
     [self searchAnnotModelFromDataBase:NO];
+ 
+ 
 }
 
 -(void)searchAnnotModelFromDataBase:(BOOL)isDelete{
@@ -1415,9 +1571,21 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
             ipt.x /= scale.width;
             ipt.y /= scale.height;
             CGRect annotRect = CGRectFromString(annotsModel.annotRect);
+
+            CGRect extensionRect = CGRectMake(ipt.x - 5, ipt.y - 5, 10, 10);
             
-            
-            if (CGRectContainsPoint(annotRect, ipt)) {
+             BOOL isContains =CGRectIntersectsRect(annotRect, extensionRect);
+
+            for (int i = 0; i < self.annotations.count; i++)
+            {
+                MuAnnotation *annot = [self.annotations objectAtIndex:i];
+                //选中已经画好
+                if ((annot.type != PDF_ANNOT_WIDGET && CGRectContainsPoint(annot.rect, ipt) && CGRectContainsRect(annot.rect, annotRect)))
+                {
+                    isContains = YES;
+                }
+            }
+            if (isContains) {
                 //
                 NSLog(@"成功找到了");
                 if (isDelete) {
@@ -1426,11 +1594,10 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
                     self.isCopy = YES;
                     annotsModel.copyAnnotIndex = self.selectedAnnotationIndex;
                     self.annotModel = annotsModel;
-//                    NSLog(@"%@",self.annotModel.key);
+                 
                 }
             }else{
-                
-                NSLog(@"数据库中没有");
+     
             }
         }
     }
@@ -1464,6 +1631,12 @@ static void updatePixmap(fz_document *doc, fz_display_list *page_list, fz_displa
         _PageNumArr = [NSMutableArray array];
     }
     return _PageNumArr;
+}
+-(NSMutableArray *)annotations{
+    if (!_annotations) {
+        _annotations = [NSMutableArray array];
+    }
+    return _annotations;
 }
 
 @end

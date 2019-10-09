@@ -14,6 +14,7 @@
 @class MuTapResultRemoteLink;
 @class MuTapResultWidget;
 @class MuTapResultAnnotation;
+@class MutapResultTool;
 
 
 @interface MuTapResult : NSObject
@@ -21,7 +22,7 @@
               caseExternal:(void (^)(MuTapResultExternalLink *))externalLinkBlock
                 caseRemote:(void (^)(MuTapResultRemoteLink *))remoteLinkBlock
                 caseWidget:(void (^)(MuTapResultWidget *))widgetBlock
-            caseAnnotation:(void (^)(MuTapResultAnnotation *))annotationBlock;
+            caseAnnotation:(void (^)(MuTapResultAnnotation *))annotationBlock caseTool:(void (^)(MutapResultTool *))toolBlock;
 @end
 
 @interface MuTapResultInternalLink : MuTapResult
@@ -49,3 +50,6 @@
 -(id)initWithAnnotation:(MuAnnotation *)aAnnot;
 @end
 
+@interface MutapResultTool : MuTapResult
+
+@end

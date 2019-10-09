@@ -7,7 +7,9 @@
 //
 
 #import <UIKit/UIKit.h>
+#include "mupdf/fitz.h"
 
 @interface MuHitView : UIView
-
+- (instancetype) initWithSearchResults: (int)n forDocument: (fz_document *)doc;
+- (void) setPageSize: (CGSize)s;
 @end

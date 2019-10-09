@@ -114,6 +114,11 @@
 -(void)reSignature;
 //在具体页面显示签名
 -(void)showSignatureWithIndex:(int)index;
+// 设置单页操作之后，其他页面是否连续
+-(void)setContinuousPage:(BOOL)continuous;
+// 设置toolView隐藏
+-(void)setHiddenTool:(BOOL)isHidden;
+
 @end
 
 #pragma mark - 切换PDF 文档
@@ -130,6 +135,11 @@
 @end
 #pragma mark 右下角工具条
 @interface SiniCustomePDFViewcontroller (CornerTools)
+
+/**
+ testVC
+ */
+@property (nonatomic,readonly) UIButton *datalistVCItem;
 
 /**
  标注工具条

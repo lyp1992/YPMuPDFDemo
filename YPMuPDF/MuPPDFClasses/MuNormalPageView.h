@@ -19,6 +19,7 @@
                  andDocument:(MuDocRef *)docRef
                andPageNumber:(NSInteger)pageNumber
                 andNightMode:(BOOL)nightMode andDegree:(CGFloat)degree andUUId:(NSString *)uuid drawAnnots:(BOOL)isDraw
-           andSignatureIndex:(int)signaIndex;
+           andSignatureIndex:(int)signaIndex
+                       scale:(CGFloat)scale;
 
 @end

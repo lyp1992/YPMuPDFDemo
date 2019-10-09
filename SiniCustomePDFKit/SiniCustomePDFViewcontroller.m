@@ -13,8 +13,13 @@
 #import "PageStringModel.h"
 #import "SiniOutlineViewController.h"
 #import "MLeaksFinder.h"
+//#import "TestVC/DataListViewController.h"
 
 @interface SiniCustomePDFViewcontroller () <SiniSearchDelegate,SiniOutlineDelegate>
+///**
+// TestVC
+// */
+//@property (nonatomic, strong) DataListViewController *dataListVC;
 
 /**
  PDF 搜索控制器
@@ -81,8 +86,9 @@ static void *PSCAnnotationStateManagerChangedStateContext = &PSCAnnotationStateM
 -(instancetype)initWithStyleInstance:(nullable SiniPDFStyleInstance *)styleInstance
 {
     if (self = [super init]) {
+      
+        _isNightModel = [[NSUserDefaults standardUserDefaults]boolForKey:@"switchNight"];
         self.view.backgroundColor = [UIColor whiteColor];
-        _isNightModel = NO;
         self.cornerToolsItems = [NSMutableArray array];
         if (styleInstance) {
             self.styleInstance = styleInstance;
@@ -97,7 +103,8 @@ static void *PSCAnnotationStateManagerChangedStateContext = &PSCAnnotationStateM
         [_documentVC didMoveToParentViewController:self];
         _documentVC.parentViewController = self;
         self.navigationItem.leftBarButtonItems = nil;
-//        self.navigationItem.rightBarButtonItems = @[_documentVC.switchNightButton,_documentVC.inkButton,_documentVC.cancelButton,_documentVC.deleteButton,_documentVC.annotButton];
+        _documentVC.isNeedNav = NO;
+
     }
     return self;
 }
@@ -211,6 +218,13 @@ static void *PSCAnnotationStateManagerChangedStateContext = &PSCAnnotationStateM
     return _siniOutlineVC;
 }
 
+//-(DataListViewController *)dataListVC{
+//    if (!_dataListVC) {
+//        _dataListVC = [[DataListViewController alloc]init];
+//    }
+//    return _dataListVC;
+//}
+
 #pragma mark - 设置
 
 /**
@@ -261,6 +275,7 @@ static void *PSCAnnotationStateManagerChangedStateContext = &PSCAnnotationStateM
 {
     _isNightModel = isNight;
     [_documentVC setNight:isNight];
+    
 }
 
 -(void)getOutline{
@@ -287,6 +302,13 @@ static void *PSCAnnotationStateManagerChangedStateContext = &PSCAnnotationStateM
 }
 -(void)showSignatureWithIndex:(int)index{
     [_documentVC showSignatureWithIndex:index];
+}
+-(void)setContinuousPage:(BOOL)continuous{
+    [_documentVC setContinuouPage:continuous];
+}
+-(void)setHiddenTool:(BOOL)isHidden{
+    [[NSUserDefaults standardUserDefaults]setBool:isHidden forKey:@"HiddenTool"];
+    self.cornerView.hidden = isHidden;
 }
 
 #pragma mark - 功能
@@ -354,7 +376,9 @@ static void *PSCAnnotationStateManagerChangedStateContext = &PSCAnnotationStateM
 -(void)viewDidLoad
 {
     [super viewDidLoad];
+    
 }
+
 
 #pragma mark - view frame
 
@@ -374,7 +398,7 @@ static void *PSCAnnotationStateManagerChangedStateContext = &PSCAnnotationStateM
     } withResult:^(NSArray *results) {
         result(results);
     }];
-    NSLog(@"+++++++");
+
 }
 - (NSArray <PageStringModel *> *)searchWithString:(NSString *)string model:(PageStringModel *)model{
     
@@ -383,20 +407,14 @@ static void *PSCAnnotationStateManagerChangedStateContext = &PSCAnnotationStateM
     [_documentVC searchPdfWorfs:string fromIndex:model.pageNumber progress:^(int total, int currentIndex) {
         
         speed = (CGFloat)currentIndex/total;
-        NSLog(@"speed==%f",speed);
+
     } withResult:^(NSArray *results) {
         result = results;
-        NSLog(@"result==%@",result);
+
     }];
-    NSLog(@"+++++++");
+
     return result;
-    
-//    if(model){
-//       return [_documentVC searchPdfWords:string fromIndex:model.pageNumber];
-//    }else{
-//        return [_documentVC searchPdfWords:string];
-//    }
-    
+
 }
 /**
  *  显示搜索详细信息
@@ -447,6 +465,7 @@ static void *PSCAnnotationStateManagerChangedStateContext = &PSCAnnotationStateM
     [self.view addSubview:_documentVC.view];
     [self addChildViewController:_documentVC];
     [_documentVC didMoveToParentViewController:self];
+    _documentVC.isNeedNav = NO;
     
     NSString *filePath = fileUrl.path;
     MuDocRef *docRef = [[MuDocRef alloc] initWithFilePath:filePath];
@@ -454,6 +473,8 @@ static void *PSCAnnotationStateManagerChangedStateContext = &PSCAnnotationStateM
     _documentVC.docRef = docRef;
     _documentVC.uuid = uid;
     [self.view bringSubviewToFront:_cornerView];
+    
+    self.navigationController.navigationBar.hidden = YES;
 }
 /**
  
@@ -585,7 +606,7 @@ static const char * siniOutLineItemIdentify = "siniOutLineItemIdentify";
         siniRightRotationItem.frame = CGRectMake(0, 0, 54, 49);
         [siniRightRotationItem addTarget:self action:@selector(siniOutlineItemClicked:) forControlEvents:UIControlEventTouchUpInside];
         NSBundle *bundle = [NSBundle bundleWithIdentifier:@"SiniCustomePDFkit"];
-        UIImage *image = [UIImage imageNamed:@"更多" inBundle:bundle compatibleWithTraitCollection:nil];
+        UIImage *image = [UIImage imageNamed:@"outline_gray" inBundle:bundle compatibleWithTraitCollection:nil];
         [siniRightRotationItem setImage:image forState:UIControlStateNormal];
         
         objc_setAssociatedObject(self, &siniOutLineItemIdentify, siniRightRotationItem, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
@@ -609,5 +630,40 @@ static const char * siniOutLineItemIdentify = "siniOutLineItemIdentify";
 {
     self.cornerButtonActionComplete = complete;
 }
+
+//目录
+static const char * DataListVCIdentify = "DataListVCIdentify";
+- (UIButton *)datalistVCItem{
+    id obj = objc_getAssociatedObject(self, &DataListVCIdentify);
+    if (!obj) {
+        UIButton * siniRightRotationItem = [UIButton buttonWithType:UIButtonTypeCustom];
+        siniRightRotationItem.frame = CGRectMake(0, 0, 54, 49);
+        [siniRightRotationItem addTarget:self action:@selector(datalistVCClicked:) forControlEvents:UIControlEventTouchUpInside];
+        [siniRightRotationItem setTitle:@"show" forState:UIControlStateNormal];
+        
+        objc_setAssociatedObject(self, &DataListVCIdentify, siniRightRotationItem, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    }
+    return objc_getAssociatedObject(self, &DataListVCIdentify);
+}
+//- (void)datalistVCClicked:(UIButton *)sender
+//{
+//    //弹出搜索框，开始搜索
+//    self.dataListVC.modalPresentationStyle = UIModalPresentationPopover;
+//    UIPopoverPresentationController *popprensentVC = self.dataListVC.popoverPresentationController;
+//    self.dataListVC.preferredContentSize = CGSizeMake(400, 650);
+//    popprensentVC.sourceRect = sender.frame;
+//    popprensentVC.sourceView = sender.superview;
+//    [self presentViewController:self.dataListVC animated:YES completion:nil];
+//    
+//    __weak typeof(self) weakSelf = self;
+//    [self.dataListVC setReturnData:^(NSString * _Nonnull filePath, NSString * _Nonnull uuid) {
+//        [weakSelf displayDocumentWithURL:[NSURL fileURLWithPath:filePath] uid:uuid];
+//        
+//    }];
+//    
+//    if (self.cornerButtonActionComplete) self.cornerButtonActionComplete(sender);
+//}
+
+
 
 @end

@@ -22,6 +22,7 @@
 
 //当旋转方式变了，更新数据库中对应pdf的旋转方向
 -(void)updateDataBaseWithUUId:(NSString *)uuid withRotation:(CGFloat)rotation;
+-(BOOL)updateDBWithSql:(NSString *)sql;
 
 // 删除数据
 - (void)deleteUserInfoListFromDataBase;

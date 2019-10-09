@@ -4,7 +4,8 @@
 
 #define rotationView @"rotationView"
 #define reloadThePage @"reloadThePage"
-
+#define ContinuousPage @"ContinuousPage"
+#define switchNight @"switchNight"
 
 #define signPath NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject
 #define signaturePathClear [signPath stringByAppendingPathComponent:@"signatureClear.png"]
@@ -30,6 +31,7 @@
 -(void) saveInk;
 -(void) update;
 
+
 -(void)yp_getPDFDirectionWithDegree:(CGFloat)degree;
 -(void)saveAnnotsModel;
 -(void)deleteCurrentCurves;
@@ -40,6 +42,8 @@
 -(void)redo;
 -(void)signature;
 -(void)setPerfercesModel:(PreferencesModel *)preferModel;
+-(void)setInkStatus:(BOOL)inkStatus;
+
 
 @end
 
